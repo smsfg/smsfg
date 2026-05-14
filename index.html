@@ -564,23 +564,23 @@ const config = {
 
   // Commissioner's Notes — update this each week
   notesWeek: 1,
-  notes: `Welcome to the 2026 SMSFG season! Season standings are now live — you need 3 rounds to appear. Players with fewer than 6 rounds are marked <em>incomplete</em>. Contact Mike with any scoring questions.`,
+  notes: `Welcome to the 2026 SMSFG season! Season standings are now live — you need 3 rounds to appear. Players with fewer than 6 rounds are marked <em>incomplete</em>. Contact Scott with any scoring questions.`,
 
   // Next Week info — update when available, set available: false to show "TBD"
   nextWeek: {
-    available: false,
-    weekNum: 5,
-    date: '',
-    course: '',
-    tees: '',
-    ctpHoles: [],
-    foursomes: []
-    // When available, foursomes format:
-    // foursomes: [
-    //   { teeTime: '8:00 AM', hole: 1, players: ['John Murphy', 'Scott Wiley', 'Kevin Riley', 'Jack McGarry'] },
-    //   { teeTime: '8:10 AM', hole: 1, players: ['Scott Beliveau', 'Dave Shaw', 'Tim Fitzgerald', 'Ron Gagnon'] },
-    // ]
-  }
+	available: true,
+	weekNum: 2,
+	date: '5/19/2026',
+	course: 'Spring Meadow Golf Club',
+	tees: 'White',
+	ctpHoles: [6, 13],
+	foursomes: [
+		{ teeTime: '1:00 PM', hole: 1, players: ['Kevin Riley', 'Mike Graef', 'Dave Shaw', 'Brendan O\'Donnell'] },
+		{ teeTime: '1:10 PM', hole: 1, players: ['Paul Keenan', 'Bret Drew', 'Tim Gikas', 'Scott Beliveau'] },
+		{ teeTime: '1:20 PM', hole: 1, players: ['Chris Jerome', 'Paul Tworog', 'Don Boutin', 'Matt Gilligan'] },
+		{ teeTime: '1:30 PM', hole: 1, players: ['John Seubert', 'John Murphy', 'Rick Heenan', 'Craig Skeffington'] },
+		{ teeTime: '1:40 PM', hole: 1, players: ['Russ Scudder', 'Tim Fitzgerald', 'Scott Wiley', 'Ron Gagnon'] },
+	]
 };
 
 // ══════════════════════════════════════════════
@@ -641,7 +641,10 @@ function parseArchiveRow(row) {
   };
 }
 
-function parseCSVRaw(text) {
+function formatCash(val) {
+  if (val < 0) return `($${Math.abs(val).toFixed(2)})`;
+  return `+$${val.toFixed(2)}`;
+}
   return text.trim().split('\n').map(line => {
     const vals = [];
     let cur = '', inQ = false;
@@ -836,7 +839,6 @@ function renderStandings(sortCol = 0, archiveData) {
     else ptsCell = `<td class="num" style="font-weight:600;">${p.seasonPts}</td>`;
 
     const cashClass = p.netCash >= 0 ? 'badge-pos' : 'badge-neg';
-    const cashSign  = p.netCash >= 0 ? '+' : '';
 
     tr.innerHTML = `
       <td style="font-weight:500;">${p.player}</td>
@@ -844,7 +846,7 @@ function renderStandings(sortCol = 0, archiveData) {
       <td class="num">${p.rounds}</td>
       <td class="num">${p.avgGross}</td>
       <td class="num">${p.avgNet}</td>
-      <td class="num"><span class="${cashClass}">${cashSign}$${p.netCash.toFixed(2)}</span></td>
+      <td class="num"><span class="${cashClass}">${formatCash(p.netCash)}</span></td>
       <td><span class="badge ${isRegular ? '' : 'badge-sub'}">${p.type}</span></td>
     `;
     tbody.appendChild(tr);
@@ -1045,14 +1047,13 @@ function renderMoney(archiveData) {
   tbody.innerHTML = '';
   data.forEach(p => {
     const cashClass = p.netCash >= 0 ? 'badge-pos' : 'badge-neg';
-    const cashSign  = p.netCash >= 0 ? '+' : '';
     const tr = document.createElement('tr');
     if (p.type !== 'Regular') tr.classList.add('sub-row');
     tr.innerHTML = `
       <td style="font-weight:500;">${p.player}</td>
       <td><span class="badge ${p.type!=='Regular'?'badge-sub':''}">${p.type}</span></td>
       <td class="num">$${p.cash.toFixed(2)}</td>
-      <td class="num"><span class="${cashClass}" style="font-weight:600;">${cashSign}$${Math.abs(p.netCash).toFixed(2)}</span></td>
+      <td class="num"><span class="${cashClass}" style="font-weight:600;">${formatCash(p.netCash)}</span></td>
       <td class="num">${p.rounds}</td>
       <td class="num">${p.skins}</td>
       <td class="num">${p.ctpF}</td>
