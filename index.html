@@ -693,6 +693,8 @@ async function init() {
     const archiveText = await archiveRes.text();
     const archiveRows = parseCSV(archiveText);
     const archiveData = archiveRows.filter(r => r['Player']).map(parseArchiveRow);
+    console.log('Archive rows parsed:', archiveRows.length, 'first row:', JSON.stringify(archiveRows[0]));
+    console.log('Archive data after map:', archiveData.length, 'first:', JSON.stringify(archiveData[0]));
     globalArchiveData = archiveData;
 
     // Find all unique week numbers from archive to know which scorecard sheets to fetch
