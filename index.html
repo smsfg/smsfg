@@ -594,9 +594,13 @@ function csvUrl(gid) {
 
 function parseCSV(text) {
   const lines = text.trim().split('\n');
-  // Find the header row — it's the first row that starts with "Week #" or Week
-  const headerIdx = lines.findIndex(l => l.replace(/"/g,'').trim().startsWith('Week #'));
-  if (headerIdx === -1) return [];
+  // Find the header row — look for the line containing "Week #" and "Player"
+  let headerIdx = lines.findIndex(l => {
+    const clean = l.replace(/"/g,'');
+    return clean.includes('Week #') && clean.includes('Player');
+  });
+  // Fallback: just use first line
+  if (headerIdx === -1) headerIdx = 0;
   const headers = lines[headerIdx].split(',').map(h => h.replace(/"/g,'').trim());
   return lines.slice(headerIdx + 1).map(line => {
     const vals = [];
@@ -610,7 +614,7 @@ function parseCSV(text) {
     const obj = {};
     headers.forEach((h, i) => obj[h] = (vals[i] || '').replace(/"/g,'').trim());
     return obj;
-  }).filter(r => r['Week #'] && r['Player']);
+  }).filter(r => r['Player'] && r['Player'].length > 0);
 }
 
 function parseArchiveRow(row) {
@@ -777,7 +781,7 @@ function computeStandings(archiveData) {
     const netCash  = p.cash - (20 * p.rounds);
     let seasonPts = null;
     let status = 'ns';
-    if (p.rounds >= 3 && p.type === 'Regular') {
+    if (p.type === 'Regular' && p.rounds >= 3) {
       const sorted = [...p.stablefords].sort((a,b)=>b-a);
       const relevant = sorted.slice(1, 6);
       seasonPts = relevant.reduce((a,b)=>a+b,0);
