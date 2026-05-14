@@ -586,6 +586,7 @@ const config = {
 // ══════════════════════════════════════════════
 
 const SHEET_ID = '1otwuWsdy5gTF75nH4uk1riZC1orm1py-zKqCcoV0TiA';
+let globalArchiveData = [];
 
 function csvUrl(gid) {
   return `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&gid=${gid}`;
@@ -593,8 +594,11 @@ function csvUrl(gid) {
 
 function parseCSV(text) {
   const lines = text.trim().split('\n');
-  const headers = lines[0].split(',').map(h => h.replace(/"/g,'').trim());
-  return lines.slice(1).map(line => {
+  // Find the header row — it's the first row that starts with "Week #" or Week
+  const headerIdx = lines.findIndex(l => l.replace(/"/g,'').trim().startsWith('Week #'));
+  if (headerIdx === -1) return [];
+  const headers = lines[headerIdx].split(',').map(h => h.replace(/"/g,'').trim());
+  return lines.slice(headerIdx + 1).map(line => {
     const vals = [];
     let cur = '', inQ = false;
     for (const ch of line) {
@@ -604,9 +608,9 @@ function parseCSV(text) {
     }
     vals.push(cur.trim());
     const obj = {};
-    headers.forEach((h, i) => obj[h] = vals[i] || '');
+    headers.forEach((h, i) => obj[h] = (vals[i] || '').replace(/"/g,'').trim());
     return obj;
-  });
+  }).filter(r => r['Week #'] && r['Player']);
 }
 
 function parseArchiveRow(row) {
@@ -689,6 +693,7 @@ async function init() {
     const archiveText = await archiveRes.text();
     const archiveRows = parseCSV(archiveText);
     const archiveData = archiveRows.filter(r => r['Player']).map(parseArchiveRow);
+    globalArchiveData = archiveData;
 
     // Find all unique week numbers from archive to know which scorecard sheets to fetch
     const weeks = [...new Set(archiveData.map(r => r.week))].sort((a,b)=>a-b);
@@ -1049,7 +1054,7 @@ function sortTable(tableId, col, btn) {
     if (b.closest('.sort-controls') === btn.closest('.sort-controls')) b.classList.remove('active');
   });
   btn.classList.add('active');
-  if (tableId === 'standings-table') { renderStandings(col); return; }
+  if (tableId === 'standings-table') { renderStandings(col, globalArchiveData); return; }
   if (tableId === 'money-table') {
     const tbody = document.getElementById('money-body');
     const rows = Array.from(tbody.querySelectorAll('tr'));
