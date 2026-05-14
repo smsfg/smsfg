@@ -414,7 +414,7 @@
       <button onclick="showPage('weekly', this)">Weekly Results</button>
       <button onclick="showPage('scorecard', this)">Scorecards</button>
       <button onclick="showPage('money', this)">Money</button>
-      <button onclick="showPage('nextweek', this)">Next Week</button>
+      <button onclick="showPage('nextweek', this)">Next Round</button>
     </nav>
   </div>
 </header>
@@ -427,7 +427,7 @@
   <div id="page-standings" class="page active">
 
     <div class="notes-card">
-      <div class="notes-label">📋 Commissioner's Notes — Week 4</div>
+      <div class="notes-label">📋 Notes — Week 4</div>
       <p>Great turnout this week despite the weather. Reminder: money from weeks 1–3 will be collected at the start of Week 5. Season standings are now live — you need 3 rounds to appear. Players with fewer than 6 rounds are marked <em>incomplete</em>. Contact Scott with any scoring questions.</p>
     </div>
 
@@ -538,7 +538,7 @@
   <div id="page-nextweek" class="page">
 
     <div class="section-heading">
-      <h2>Next Week</h2>
+      <h2>Next Round</h2>
       <span id="nextweek-subtitle">Foursomes &amp; tee times</span>
     </div>
 
@@ -562,9 +562,9 @@ const config = {
   totalWeeks: 13,
   currentCourse: 'Val Halla Golf Club',
 
-  // Commissioner's Notes — update this each week
+  // Notes — update this each week
   notesWeek: 1,
-  notes: `Welcome to the 2026 SMSFG season! Season standings are now live — you need 3 rounds to appear. Players with fewer than 6 rounds are marked <em>incomplete</em>. Contact Scott with any scoring questions.`,
+  notes: `Welcome to the 2026 SMSFG season! Season standings are now live. You need 6 rounds for an official score....Players with fewer than 6 rounds are marked <em>incomplete</em>. Contact Mike with any scoring questions.`,
 
   nextWeek: {
     available: true,
@@ -764,7 +764,7 @@ async function init() {
   document.querySelector('.season-band').innerHTML =
     `⛳ &nbsp; ${config.season} Season &nbsp;·&nbsp; Week ${config.currentWeek} of ${config.totalWeeks} &nbsp;·&nbsp; ${config.currentCourse}`;
   document.querySelector('.notes-card .notes-label').textContent =
-    `📋 Commissioner's Notes — Week ${config.notesWeek}`;
+    `📋 Notes — Week ${config.notesWeek}`;
   document.querySelector('.notes-card p').innerHTML = config.notes;
 }
 
@@ -1158,7 +1158,7 @@ function renderNextWeek() {
 document.querySelector('.season-band').innerHTML =
   `⛳ &nbsp; ${config.season} Season &nbsp;·&nbsp; Week ${config.currentWeek} of ${config.totalWeeks} &nbsp;·&nbsp; ${config.currentCourse}`;
 document.querySelector('.notes-card .notes-label').textContent =
-  `📋 Commissioner's Notes — Week ${config.notesWeek}`;
+  `📋 Notes — Week ${config.notesWeek}`;
 document.querySelector('.notes-card p').innerHTML = config.notes;
 
 init();
