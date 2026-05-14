@@ -664,9 +664,9 @@ function parseCSVRaw(text) {
 function parseScorecardSheet(lines, weekNum) {
   if (!lines || lines.length < 5) return null;
 
-  // Row 1: date at index 2, course at index 8
+  // Row 1: date at index 2, course from config
   const date   = lines[1]?.[2] || '';
-  const course = lines[1]?.[8] || '';
+  const course = config.currentCourse || '';
 
   // Row 3: par values at indices 3-20
   const par = lines[3]?.slice(3, 21).map(v => parseInt(v) || 0) || [];
