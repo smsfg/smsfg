@@ -614,11 +614,13 @@ function parseCSV(text) {
     const obj = {};
     headers.forEach((h, i) => obj[h] = (vals[i] || '').replace(/"/g,'').trim());
     return obj;
-  }).filter(r => r['Player'] && r['Player'].length > 0);
+  }).filter(r => r['Player'] && r['Player'].length > 0 && r['Player'] !== 'Player');
 }
 
 function parseArchiveRow(row) {
-  const weekVal = row['Week #'] || row['Week#'] || row['Week'] || '';
+  // The Week # key may have description text prepended to it
+  const weekKey = Object.keys(row).find(k => k.includes('Week #')) || 'Week #';
+  const weekVal = row[weekKey] || '';
   return {
     week:      parseInt(weekVal.toString().replace(/\D/g,'')) || 0,
     date:      row['Date'] || '',
