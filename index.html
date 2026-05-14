@@ -380,6 +380,10 @@
     border-radius: 0 6px 6px 0;
   }
 
+  .skin-winner { background: rgba(45,90,52,0.25); font-weight: 700; border-radius: 3px; }
+  .skin-close  { background: rgba(45,90,52,0.10); }
+  .skin-tied   { background: rgba(201,168,76,0.12); color: var(--text-muted); }
+
   /* ── FOOTER ── */
   footer {
     text-align: center;
@@ -413,6 +417,7 @@
       <button class="active" onclick="showPage('standings', this)">Standings</button>
       <button onclick="showPage('weekly', this)">Weekly Results</button>
       <button onclick="showPage('scorecard', this)">Scorecards</button>
+      <button onclick="showPage('skins', this)">Skins</button>
       <button onclick="showPage('money', this)">Money</button>
       <button onclick="showPage('nextweek', this)">Next Round</button>
     </nav>
@@ -532,6 +537,18 @@
         <tbody id="money-body"></tbody>
       </table>
     </div>
+  </div>
+
+  <!-- ══════════════════ SKINS PAGE ══════════════════ -->
+  <div id="page-skins" class="page">
+
+    <div class="section-heading">
+      <h2>Skins</h2>
+      <span>Net skins · No carryover · Ties = no skin</span>
+    </div>
+
+    <div class="week-selector" id="skins-week-selector"></div>
+    <div id="skins-content"></div>
   </div>
 
   <!-- ══════════════════ NEXT WEEK PAGE ══════════════════ -->
@@ -698,6 +715,176 @@ function parseScorecardSheet(lines, weekNum) {
 }
 
 // ══════════════════════════════════════════════
+// SKINS
+// ══════════════════════════════════════════════
+
+function parseSkinsSheet(lines, weekNum) {
+  if (!lines || lines.length < 5) return null;
+
+  // Row 1: HC% at position 16
+  const hcPct = lines[1]?.[16] || '';
+
+  // Row 2: hole numbers (positions 3-20)
+  // Row 3: par (positions 3-20)
+  const par = lines[3]?.slice(3, 21).map(v => parseInt(v) || 0) || [];
+
+  // Row 4: stroke index (positions 3-20)
+  const si = lines[4]?.slice(3, 21).map(v => parseInt(v) || 0) || [];
+
+  // Player rows: start at row 5, end when name is blank
+  const players = [];
+  let i = 5;
+  while (i < lines.length) {
+    const row = lines[i];
+    const name = row?.[1]?.trim();
+    if (!name) break;
+    const scores = row.slice(3, 21).map(v => parseInt(v) || 0);
+    const skinsWon = parseInt(row[21]) || 0;
+    const payout = row[22]?.replace(/[$,\s]/g,'') || '';
+    players.push({
+      raw: parseFloat(row[0]) || 0,
+      name,
+      holeIndex: parseInt(row[2]) || 0,
+      scores,
+      skinsWon,
+      payout: parseFloat(payout) || 0,
+    });
+    i++;
+  }
+
+  // Find tied count row and total skins row (after blank player rows)
+  let tiedCount = [], totalSkins = 0, skinPot = 0, perSkin = 0;
+  for (let j = i; j < lines.length; j++) {
+    const row = lines[j];
+    if (!row) continue;
+    const vals = row.slice(3, 21).map(v => parseInt(v) || 0);
+    if (vals.some(v => v > 0) && !tiedCount.length) {
+      tiedCount = vals;
+    }
+    const sk = parseInt(row[21]);
+    const pay = row[22]?.replace(/[$,\s]/g,'');
+    if (sk && !totalSkins) totalSkins = sk;
+    if (pay && !perSkin) perSkin = parseFloat(pay) || 0;
+    const pot = row[2]?.replace(/[$,\s]/g,'');
+    if (pot && !skinPot) skinPot = parseFloat(pot) || 0;
+  }
+
+  // Calculate hole winners from scores
+  const holeResults = [];
+  for (let h = 0; h < 18; h++) {
+    const scores = players.map(p => ({ name: p.name, score: p.scores[h] }));
+    const minScore = Math.min(...scores.map(s => s.score).filter(s => s > 0));
+    const tied = scores.filter(s => s.score === minScore);
+    holeResults.push({
+      min: minScore,
+      winners: tied.map(s => s.name),
+      isWin: tied.length === 1,
+      isClose: tied.length === 2,
+      isTied: tied.length >= 3,
+    });
+  }
+
+  return { weekNum, hcPct, par, si, players, tiedCount, totalSkins, skinPot, perSkin, holeResults };
+}
+
+function renderSkinsSelector(weeklySkins) {
+  const weeks = Object.keys(weeklySkins).map(Number).sort((a,b)=>a-b);
+  const sel = document.getElementById('skins-week-selector');
+  sel.innerHTML = '';
+  if (!weeks.length) {
+    document.getElementById('skins-content').innerHTML =
+      '<p style="color:var(--text-muted);font-size:0.9rem;">No skins data available yet.</p>';
+    return;
+  }
+  weeks.forEach((w, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'week-btn' + (i === 0 ? ' active' : '');
+    btn.textContent = `Week ${w}`;
+    btn.onclick = () => {
+      sel.querySelectorAll('.week-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      renderSkins(w, weeklySkins);
+    };
+    sel.appendChild(btn);
+  });
+  if (weeks.length) renderSkins(weeks[0], weeklySkins);
+}
+
+function renderSkins(weekNum, weeklySkins) {
+  const sk = weeklySkins[weekNum];
+  const div = document.getElementById('skins-content');
+  if (!sk) return;
+
+  const holes = Array.from({length:18}, (_,i)=>i+1);
+  const course = globalArchiveData.find(r => r.week === weekNum)?.course || '';
+  const date   = globalArchiveData.find(r => r.week === weekNum)?.date || '';
+
+  div.innerHTML = `
+    <div class="scorecard-meta" style="margin-bottom:1.25rem;">
+      <div><div class="label">Date</div><div class="val">${date}</div></div>
+      <div><div class="label">Course</div><div class="val">${course}</div></div>
+      <div><div class="label">HC%</div><div class="val">${sk.hcPct}</div></div>
+      <div><div class="label">Skins Pot</div><div class="val">$${sk.skinPot.toFixed(2)}</div></div>
+      <div><div class="label">Per Skin</div><div class="val">$${sk.perSkin.toFixed(2)}</div></div>
+      <div><div class="label">Total Skins</div><div class="val">${sk.totalSkins}</div></div>
+    </div>
+    <div class="scorecard-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th style="text-align:left;padding-left:0.9rem;">Player</th>
+            <th>HC Idx</th>
+            ${holes.map(h=>`<th>${h}</th>`).join('')}
+            <th>Skins</th>
+            <th>Payout</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr class="par-row">
+            <td class="player-name">Par</td><td></td>
+            ${sk.par.map((p,i)=>`<td${i===8?' style="border-right:2px solid var(--border)"':''}>${p}</td>`).join('')}
+            <td></td><td></td>
+          </tr>
+          <tr class="si-row">
+            <td class="player-name" style="font-size:0.75rem;color:var(--text-muted);">Stroke Index</td><td></td>
+            ${sk.si.map((s,i)=>`<td${i===8?' style="border-right:2px solid var(--border)"':''}>${s}</td>`).join('')}
+            <td></td><td></td>
+          </tr>
+          ${sk.players.map(p => {
+            const cells = p.scores.map((s, i) => {
+              const hr = sk.holeResults[i];
+              let cls = '';
+              if (hr.isWin && hr.winners[0] === p.name) cls = 'skin-winner';
+              else if (hr.isClose && hr.winners.includes(p.name)) cls = 'skin-close';
+              else if (hr.isTied && hr.winners.includes(p.name)) cls = 'skin-tied';
+              const sep = i===8 ? ' style="border-right:2px solid var(--border)"' : '';
+              return `<td class="${cls}"${sep}>${s}</td>`;
+            }).join('');
+            return `<tr>
+              <td class="player-name">${p.name}</td>
+              <td class="handicap-idx">${p.holeIndex}</td>
+              ${cells}
+              <td style="font-weight:${p.skinsWon?'700':'400'};color:${p.skinsWon?'var(--green-mid)':'inherit'}">${p.skinsWon || '—'}</td>
+              <td style="font-weight:600;color:var(--green-mid)">${p.payout ? '$'+p.payout.toFixed(2) : '—'}</td>
+            </tr>`;
+          }).join('')}
+          <tr style="background:rgba(26,61,31,0.06);font-size:0.8rem;">
+            <td class="player-name" style="font-weight:600;color:var(--green-dark);">Tied Count</td><td></td>
+            ${sk.tiedCount.map((t,i)=>`<td style="color:var(--text-muted);${i===8?'border-right:2px solid var(--border)':''}">${t||''}</td>`).join('')}
+            <td></td><td></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <p style="font-size:0.78rem;color:var(--text-muted);margin-top:0.5rem;">
+      <span style="background:rgba(45,90,52,0.25);padding:1px 6px;border-radius:3px;font-weight:700;">Skin winner</span> &nbsp;
+      <span style="background:rgba(45,90,52,0.10);padding:1px 6px;border-radius:3px;">Close call (2-way tie)</span> &nbsp;
+      <span style="background:rgba(201,168,76,0.12);padding:1px 6px;border-radius:3px;">Tied (no skin)</span>
+    </p>
+  `;
+}
+
+// ══════════════════════════════════════════════
 // INIT — fetch live data then render
 // ══════════════════════════════════════════════
 
@@ -737,10 +924,28 @@ async function init() {
       } catch(e) { console.warn(`Could not load scorecard week ${weekNum}`, e); }
     }));
 
+    // Fetch skins sheets — add a new entry each week with the sheet gid
+    const skinsGids = {
+      1: '616004003',
+      // 2: 'GID_FOR_SKINS_WEEK_2',  ← add each week
+    };
+
+    const weeklySkins = {};
+    await Promise.all(Object.entries(skinsGids).map(async ([weekNum, gid]) => {
+      try {
+        const res = await fetch(csvUrl(gid));
+        const text = await res.text();
+        const rows = parseCSVRaw(text);
+        const sk = parseSkinsSheet(rows, parseInt(weekNum));
+        if (sk) weeklySkins[weekNum] = sk;
+      } catch(e) { console.warn(`Could not load skins week ${weekNum}`, e); }
+    }));
+
     // Render everything
     renderStandings(0, archiveData);
     renderWeeklySelector(archiveData);
     renderScorecardSelector(weeklyScorecard);
+    renderSkinsSelector(weeklySkins);
     renderMoney(archiveData);
     renderNextWeek();
 
