@@ -558,18 +558,18 @@
 
 const config = {
   season: '2026',
-  currentWeek: 4,
-  totalWeeks: 18,
+  currentWeek: 1,
+  totalWeeks: 13,
   currentCourse: 'Val Halla Golf Club',
 
   // Commissioner's Notes — update this each week
-  notesWeek: 4,
-  notes: `Great turnout this week despite the weather. Reminder: money from weeks 1–3 will be collected at the start of Week 5. Season standings are now live — you need 3 rounds to appear. Players with fewer than 6 rounds are marked <em>incomplete</em>. Contact Scott with any scoring questions.`,
+  notesWeek: 1,
+  notes: `Just getting this up and running.  Let me know if anything looks incorrect or if you'd like to see additional information`,
 
   // Next Week info — update when available, set available: false to show "TBD"
   nextWeek: {
     available: false,
-    weekNum: 5,
+    weekNum: 2,
     date: '',
     course: '',
     foursomes: []
@@ -582,59 +582,162 @@ const config = {
 };
 
 // ══════════════════════════════════════════════
-// SAMPLE DATA — Replace with Google Sheets CSV pull
+// GOOGLE SHEETS DATA SOURCE
 // ══════════════════════════════════════════════
 
-const archiveData = [
-  {week:1, date:'Jun 3, 2024', course:'Val Halla Golf', player:'Scott Beliveau', type:'Regular', index:24.8, gross:96, net:74, stableford:1, skins:3, ctpF:0, ctpB:0, cash:60.5, team:'F'},
-  {week:1, date:'Jun 3, 2024', course:'Val Halla Golf', player:'Don Boutin',      type:'Regular', index:20.2, gross:95, net:78, stableford:-5, skins:0, ctpF:0, ctpB:0, cash:0, team:'D'},
-  {week:1, date:'Jun 3, 2024', course:'Val Halla Golf', player:'Bret Drew',       type:'Regular', index:15, gross:86, net:75, stableford:-3, skins:0, ctpF:0, ctpB:0, cash:0, team:'G'},
-  {week:1, date:'Jun 3, 2024', course:'Val Halla Golf', player:'Tim Fitzgerald',  type:'Regular', index:15.9, gross:94, net:82, stableford:-9, skins:0, ctpF:0, ctpB:0, cash:0, team:'E'},
-  {week:1, date:'Jun 3, 2024', course:'Val Halla Golf', player:'Ron Gagnon',      type:'Regular', index:15.7, gross:104, net:92, stableford:-15, skins:0, ctpF:0, ctpB:0, cash:0, team:'A'},
-  {week:1, date:'Jun 3, 2024', course:'Val Halla Golf', player:'Tim Gikas',       type:'Regular', index:11.1, gross:91, net:84, stableford:-11, skins:0, ctpF:0, ctpB:0, cash:0, team:'D'},
-  {week:1, date:'Jun 3, 2024', course:'Val Halla Golf', player:'Mike Graef',      type:'Regular', index:8.6, gross:92, net:87, stableford:-14, skins:0, ctpF:0, ctpB:1, cash:20, team:'G'},
-  {week:1, date:'Jun 3, 2024', course:'Val Halla Golf', player:'Rick Heenan',     type:'Regular', index:16.6, gross:93, net:80, stableford:-8, skins:0, ctpF:0, ctpB:0, cash:0, team:'A'},
-  {week:1, date:'Jun 3, 2024', course:'Val Halla Golf', player:'Chris Jerome',    type:'Regular', index:17.1, gross:90, net:76, stableford:-4, skins:0, ctpF:0, ctpB:0, cash:0, team:'B'},
-  {week:1, date:'Jun 3, 2024', course:'Val Halla Golf', player:'Paul Keenan',     type:'Regular', index:12.3, gross:85, net:76, stableford:-4, skins:0, ctpF:0, ctpB:0, cash:20, team:'H'},
-  {week:1, date:'Jun 3, 2024', course:'Val Halla Golf', player:'Jack McGarry',    type:'Regular', index:14.4, gross:89, net:78, stableford:-6, skins:1, ctpF:0, ctpB:0, cash:7.5, team:'B'},
-  {week:1, date:'Jun 3, 2024', course:'Val Halla Golf', player:'John Murphy',     type:'Regular', index:17.5, gross:81, net:67, stableford:6, skins:1, ctpF:1, ctpB:0, cash:97.5, team:'C'},
-  {week:1, date:'Jun 3, 2024', course:'Val Halla Golf', player:'Kevin Riley',     type:'Regular', index:13.5, gross:85, net:75, stableford:-1, skins:1, ctpF:0, ctpB:0, cash:39.5, team:'H'},
-  {week:1, date:'Jun 3, 2024', course:'Val Halla Golf', player:'John Seubert',    type:'Regular', index:21.1, gross:97, net:79, stableford:-6, skins:1, ctpF:0, ctpB:0, cash:27.5, team:'F'},
-  {week:1, date:'Jun 3, 2024', course:'Val Halla Golf', player:'Dave Shaw',       type:'Regular', index:24.4, gross:97, net:76, stableford:-2, skins:0, ctpF:0, ctpB:0, cash:0, team:'E'},
-  {week:1, date:'Jun 3, 2024', course:'Val Halla Golf', player:'Scott Wiley',     type:'Regular', index:13.7, gross:86, net:76, stableford:-4, skins:1, ctpF:0, ctpB:0, cash:47.5, team:'C'},
-];
+const SHEET_ID = '1otwuWsdy5gTF75nH4uk1riZC1orm1py-zKqCcoV0TiA';
 
-const weeklyScorecard = {
-  1: {
-    date: 'Jun 3, 2024', course: 'Val Halla Golf', week: 1,
-    par: [4,4,3,5,4,4,4,3,5, 4,3,5,4,4,4,4,3,5],
-    si:  [3,7,15,11,5,1,9,17,13, 6,12,16,18,4,10,2,8,14],
-    players: [
-      {name:'Scott Beliveau', idx:24.8, holes:[6,5,3,4,6,5,5,5,7,6,5,7,3,6,6,6,6,5], out:46, inn:50, tot:96, hcp:22, net:74, stab:1, skins:3, team:'F', win:60.5},
-      {name:'Don Boutin',     idx:20.2, holes:[5,7,3,6,5,5,6,5,6,6,5,6,6,5,5,5,3,6], out:48, inn:47, tot:95, hcp:17, net:78, stab:-5, skins:0, team:'D', win:0},
-      {name:'Bret Drew',      idx:15,   holes:[6,5,3,6,6,5,4,3,5,6,4,5,4,5,6,5,3,5], out:43, inn:43, tot:86, hcp:11, net:75, stab:-3, skins:0, team:'G', win:0},
-      {name:'Tim Fitzgerald', idx:15.9, holes:[5,5,4,5,7,6,5,4,5,6,4,7,6,6,4,4,4,7], out:46, inn:48, tot:94, hcp:12, net:82, stab:-9, skins:0, team:'E', win:0},
-      {name:'Ron Gagnon',     idx:15.7, holes:[7,4,6,7,6,7,7,4,6,7,4,6,5,6,6,5,4,7], out:54, inn:50, tot:104, hcp:12, net:92, stab:-15, skins:0, team:'A', win:0},
-      {name:'Tim Gikas',      idx:11.1, holes:[5,6,5,6,6,5,4,4,7,5,3,4,5,6,5,6,4,5], out:48, inn:43, tot:91, hcp:7, net:84, stab:-11, skins:0, team:'D', win:0},
-      {name:'Mike Graef',     idx:8.6,  holes:[6,4,5,7,6,5,4,6,7,4,3,6,4,5,6,4,4,6], out:50, inn:42, tot:92, hcp:5, net:87, stab:-14, skins:0, team:'G', win:20},
-      {name:'Rick Heenan',    idx:16.6, holes:[5,4,4,7,4,6,5,5,7,6,5,6,5,5,4,5,4,6], out:47, inn:46, tot:93, hcp:13, net:80, stab:-8, skins:0, team:'A', win:0},
-      {name:'Chris Jerome',   idx:17.1, holes:[6,4,4,6,6,5,5,3,7,5,4,6,5,6,5,4,4,5], out:46, inn:44, tot:90, hcp:14, net:76, stab:-4, skins:0, team:'B', win:0},
-      {name:'Paul Keenan',    idx:12.3, holes:[5,4,4,6,4,4,4,5,6,6,4,5,5,5,5,4,4,5], out:42, inn:43, tot:85, hcp:9, net:76, stab:-4, skins:0, team:'H', win:20},
-      {name:'Jack McGarry',   idx:14.4, holes:[5,4,5,7,4,5,5,4,7,5,4,6,5,4,5,5,3,6], out:46, inn:43, tot:89, hcp:11, net:78, stab:-6, skins:1, team:'B', win:7.5},
-      {name:'John Murphy',    idx:17.5, holes:[4,4,3,6,6,4,4,4,5,6,4,4,4,5,4,4,4,6], out:40, inn:41, tot:81, hcp:14, net:67, stab:6, skins:1, team:'C', win:97.5},
-      {name:'Kevin Riley',    idx:13.5, holes:[6,6,4,5,4,5,5,5,5,5,3,6,4,5,5,6,2,4], out:45, inn:40, tot:85, hcp:10, net:75, stab:-1, skins:1, team:'H', win:39.5},
-      {name:'John Seubert',   idx:21.1, holes:[4,4,4,6,6,6,6,4,5,6,6,7,5,6,6,5,4,7], out:45, inn:52, tot:97, hcp:18, net:79, stab:-6, skins:1, team:'F', win:27.5},
-      {name:'Dave Shaw',      idx:24.4, holes:[5,5,4,6,6,6,6,4,6,5,6,5,5,6,5,7,5,5], out:48, inn:49, tot:97, hcp:21, net:76, stab:-2, skins:0, team:'E', win:0},
-      {name:'Scott Wiley',    idx:13.7, holes:[4,5,4,5,5,6,5,4,6,4,4,5,4,5,4,6,4,6], out:44, inn:42, tot:86, hcp:10, net:76, stab:-4, skins:1, team:'C', win:47.5},
-    ]
+function csvUrl(gid) {
+  return `https://docs.google.com/spreadsheets/d/${SHEET_ID}/export?format=csv&gid=${gid}`;
+}
+
+function parseCSV(text) {
+  const lines = text.trim().split('\n');
+  const headers = lines[0].split(',').map(h => h.replace(/"/g,'').trim());
+  return lines.slice(1).map(line => {
+    const vals = [];
+    let cur = '', inQ = false;
+    for (const ch of line) {
+      if (ch === '"') inQ = !inQ;
+      else if (ch === ',' && !inQ) { vals.push(cur.trim()); cur = ''; }
+      else cur += ch;
+    }
+    vals.push(cur.trim());
+    const obj = {};
+    headers.forEach((h, i) => obj[h] = vals[i] || '');
+    return obj;
+  });
+}
+
+function parseArchiveRow(row) {
+  return {
+    week:      parseInt(row['Week #']) || 0,
+    date:      row['Date'] || '',
+    course:    row['Course'] || '',
+    player:    row['Player'] || '',
+    type:      row['Type'] || 'Regular',
+    index:     parseFloat(row['Index']) || 0,
+    gross:     parseInt(row['Gross']) || 0,
+    net:       parseInt(row['Net']) || 0,
+    stableford:parseInt(row['Stableford']) || 0,
+    skins:     parseInt(row['Skins']) || 0,
+    ctpF:      parseInt(row['CTP Front']) || 0,
+    ctpB:      parseInt(row['CTP Back']) || 0,
+    cash:      parseFloat(row['Cash Won']) || 0,
+    team:      row['Team'] || '',
+  };
+}
+
+function parseScorecardSheet(rows, weekNum) {
+  // Row 0: header row (Hole, blank, blank, 1,2,3...18, OUT, IN, TOT, HCP, NET, Stableford, Skins, Team, Win)
+  // Row 1: Par row
+  // Row 2: Stroke Index row
+  // Rows 3+: player rows
+  if (!rows || rows.length < 3) return null;
+
+  const headers = Object.keys(rows[0]);
+  // Find hole columns (numeric headers 1-18)
+  const holeKeys = headers.filter(h => /^\d+$/.test(h) && parseInt(h) >= 1 && parseInt(h) <= 18)
+                          .sort((a,b) => parseInt(a)-parseInt(b));
+
+  const metaRow = rows[0]; // first data row has date/course info in first few cells
+  const parRow  = rows[0];
+  const siRow   = rows[1];
+
+  // Extract date and course from the raw first row values
+  const allVals = Object.values(rows[0]);
+  const date    = allVals[1] || '';
+  const course  = allVals[7] || '';
+
+  const par = holeKeys.map(k => parseInt(rows[0][k]) || 0);
+  const si  = holeKeys.map(k => parseInt(rows[1][k]) || 0);
+
+  const players = [];
+  for (let i = 2; i < rows.length; i++) {
+    const r = rows[i];
+    const nameVal = Object.values(r)[0];
+    if (!nameVal || !nameVal.trim()) continue;
+    const holes = holeKeys.map(k => parseInt(r[k]) || 0);
+    players.push({
+      name: nameVal.trim(),
+      idx:  parseFloat(Object.values(r)[1]) || 0,
+      holes,
+      out:  parseInt(r['OUT']) || holes.slice(0,9).reduce((a,b)=>a+b,0),
+      inn:  parseInt(r['IN'])  || holes.slice(9).reduce((a,b)=>a+b,0),
+      tot:  parseInt(r['TOT']) || holes.reduce((a,b)=>a+b,0),
+      hcp:  parseInt(r['HCP']) || 0,
+      net:  parseInt(r['NET']) || 0,
+      stab: parseInt(r['Stableford']) || 0,
+    });
   }
-};
+
+  return { week: weekNum, date, course, par, si, players };
+}
+
+// ══════════════════════════════════════════════
+// INIT — fetch live data then render
+// ══════════════════════════════════════════════
+
+async function init() {
+  // Show loading state
+  document.getElementById('standings-body').innerHTML =
+    '<tr><td colspan="7" style="text-align:center;padding:2rem;color:var(--text-muted);">Loading data...</td></tr>';
+
+  try {
+    // Fetch Archive
+    const archiveRes = await fetch(csvUrl('567116767'));
+    const archiveText = await archiveRes.text();
+    const archiveRows = parseCSV(archiveText);
+    const archiveData = archiveRows.filter(r => r['Player']).map(parseArchiveRow);
+
+    // Find all unique week numbers from archive to know which scorecard sheets to fetch
+    const weeks = [...new Set(archiveData.map(r => r.week))].sort((a,b)=>a-b);
+
+    // Fetch scorecard sheets — we know Week 1 gid, add more here as weeks progress
+    const scorecardGids = {
+      1: '1600606220',
+      // 2: 'GID_FOR_WEEK_2',  ← add each week
+    };
+
+    const weeklyScorecard = {};
+    await Promise.all(Object.entries(scorecardGids).map(async ([weekNum, gid]) => {
+      try {
+        const res = await fetch(csvUrl(gid));
+        const text = await res.text();
+        const rows = parseCSV(text);
+        const sc = parseScorecardSheet(rows, parseInt(weekNum));
+        if (sc) weeklyScorecard[weekNum] = sc;
+      } catch(e) { console.warn(`Could not load scorecard week ${weekNum}`, e); }
+    }));
+
+    // Render everything
+    renderStandings(0, archiveData);
+    renderWeeklySelector(archiveData);
+    renderScorecardSelector(weeklyScorecard);
+    renderMoney(archiveData);
+    renderNextWeek();
+
+  } catch(err) {
+    console.error('Failed to load data:', err);
+    document.getElementById('standings-body').innerHTML =
+      '<tr><td colspan="7" style="text-align:center;padding:2rem;color:#a32d2d;">Could not load data. Please try refreshing.</td></tr>';
+  }
+
+  // Apply config to page elements
+  document.querySelector('.season-band').innerHTML =
+    `⛳ &nbsp; ${config.season} Season &nbsp;·&nbsp; Week ${config.currentWeek} of ${config.totalWeeks} &nbsp;·&nbsp; ${config.currentCourse}`;
+  document.querySelector('.notes-card .notes-label').textContent =
+    `📋 Commissioner's Notes — Week ${config.notesWeek}`;
+  document.querySelector('.notes-card p').innerHTML = config.notes;
+}
+
+init();
 
 // ══════════════════════════════════════════════
 // STANDINGS LOGIC
 // ══════════════════════════════════════════════
 
-function computeStandings() {
+function computeStandings(archiveData) {
   const players = {};
   archiveData.forEach(row => {
     if (!players[row.player]) {
@@ -667,8 +770,8 @@ function computeStandings() {
   });
 }
 
-function renderStandings(sortCol = 1) {
-  const data = computeStandings();
+function renderStandings(sortCol = 0, archiveData) {
+  const data = computeStandings(archiveData);
 
   data.sort((a, b) => {
     if (sortCol === 0) {
@@ -720,7 +823,7 @@ function renderStandings(sortCol = 1) {
 // WEEKLY RESULTS
 // ══════════════════════════════════════════════
 
-function renderWeeklySelector() {
+function renderWeeklySelector(archiveData) {
   const weeks = [...new Set(archiveData.map(r => r.week))].sort((a,b)=>a-b);
   const sel = document.getElementById('weekly-week-selector');
   sel.innerHTML = '';
@@ -731,14 +834,14 @@ function renderWeeklySelector() {
     btn.onclick = () => {
       sel.querySelectorAll('.week-btn').forEach(b => b.classList.remove('active'));
       btn.classList.add('active');
-      renderWeeklyResults(w);
+      renderWeeklyResults(w, archiveData);
     };
     sel.appendChild(btn);
   });
-  if (weeks.length) renderWeeklyResults(weeks[0]);
+  if (weeks.length) renderWeeklyResults(weeks[0], archiveData);
 }
 
-function renderWeeklyResults(week) {
+function renderWeeklyResults(week, archiveData) {
   const rows = archiveData.filter(r => r.week === week).sort((a,b)=> b.stableford - a.stableford);
   const first = rows[0];
   const div = document.getElementById('weekly-content');
@@ -805,7 +908,7 @@ function renderWeeklyResults(week) {
 // SCORECARDS
 // ══════════════════════════════════════════════
 
-function renderScorecardSelector() {
+function renderScorecardSelector(weeklyScorecard) {
   const weeks = Object.keys(weeklyScorecard).map(Number).sort((a,b)=>a-b);
   const sel = document.getElementById('scorecard-week-selector');
   sel.innerHTML = '';
@@ -816,14 +919,14 @@ function renderScorecardSelector() {
     btn.onclick = () => {
       sel.querySelectorAll('.week-btn').forEach(b => b.classList.remove('active'));
       btn.classList.add('active');
-      renderScorecard(w);
+      renderScorecard(w, weeklyScorecard);
     };
     sel.appendChild(btn);
   });
-  if (weeks.length) renderScorecard(weeks[0]);
+  if (weeks.length) renderScorecard(weeks[0], weeklyScorecard);
 }
 
-function renderScorecard(week) {
+function renderScorecard(week, weeklyScorecard) {
   const sc = weeklyScorecard[week];
   const div = document.getElementById('scorecard-content');
   const holes = Array.from({length:18}, (_,i)=>i+1);
@@ -892,7 +995,7 @@ function renderScorecard(week) {
 // MONEY
 // ══════════════════════════════════════════════
 
-function renderMoney() {
+function renderMoney(archiveData) {
   const players = {};
   archiveData.forEach(row => {
     if (!players[row.player]) players[row.player] = { player: row.player, type: row.type, rounds: 0, cash: 0, skins: 0, ctpF: 0, ctpB: 0 };
