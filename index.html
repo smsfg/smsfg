@@ -618,8 +618,9 @@ function parseCSV(text) {
 }
 
 function parseArchiveRow(row) {
+  const weekVal = row['Week #'] || row['Week#'] || row['Week'] || '';
   return {
-    week:      parseInt(row['Week #'].replace(/\D/g,'')) || 0,
+    week:      parseInt(weekVal.toString().replace(/\D/g,'')) || 0,
     date:      row['Date'] || '',
     course:    row['Course'] || '',
     player:    row['Player'] || '',
