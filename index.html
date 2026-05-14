@@ -558,25 +558,28 @@
 
 const config = {
   season: '2026',
-  currentWeek: 4,
-  totalWeeks: 18,
+  currentWeek: 1,
+  totalWeeks: 13,
   currentCourse: 'Val Halla Golf Club',
 
   // Commissioner's Notes — update this each week
-  notesWeek: 4,
-  notes: `Great turnout this week despite the weather. Reminder: money from weeks 1–3 will be collected at the start of Week 5. Season standings are now live — you need 3 rounds to appear. Players with fewer than 6 rounds are marked <em>incomplete</em>. Contact Scott with any scoring questions.`,
+  notesWeek: 1,
+  notes: `Welcome to the 2026 SMSFG season! Season standings are now live — you need 3 rounds to appear. Players with fewer than 6 rounds are marked <em>incomplete</em>. Contact Scott with any scoring questions.`,
 
   // Next Week info — update when available, set available: false to show "TBD"
   nextWeek: {
-    available: false,
-    weekNum: 5,
-    date: '',
-    course: '',
+    available: true,
+    weekNum: 2,
+    date: '5/19/2026',
+    course: 'Spring Meadow Golf Club',
     foursomes: []
     // When available, foursomes format:
     // foursomes: [
-    //   { teeTime: '8:00 AM', hole: 1, players: ['John Murphy', 'Scott Wiley', 'Kevin Riley', 'Jack McGarry'] },
-    //   { teeTime: '8:10 AM', hole: 1, players: ['Scott Beliveau', 'Dave Shaw', 'Tim Fitzgerald', 'Ron Gagnon'] },
+    //   { teeTime: '1:00 PM', hole: 1, players: ['Kevin Riley', 'Mike Graef', 'Dave Shaw', 'Brendan O"Donnell'] },
+    //   { teeTime: '1:10 PM', hole: 1, players: ['Paul Keenan', 'Bret Drew', 'Tim Gikas', 'Scott Beliveau'] },
+	//   { teeTime: '1:20 PM', hole: 1, players: ['Chris Jerome', 'Paul Tworog', 'Don Boutin', 'Matt Gilligan'] },
+    //   { teeTime: '1:30 PM', hole: 1, players: ['John Seubert', 'John Murphy', 'Rick Heenan', 'Craig Skeffington'] },
+    //   { teeTime: '1:40 PM', hole: 1, players: ['Russ Scudder', 'Tim Fitzgerald', 'Scott Wiley', 'Ron Gagnon'] },
     // ]
   }
 };
@@ -639,46 +642,51 @@ function parseArchiveRow(row) {
   };
 }
 
-function parseScorecardSheet(rows, weekNum) {
-  // Row 0: header row (Hole, blank, blank, 1,2,3...18, OUT, IN, TOT, HCP, NET, Stableford, Skins, Team, Win)
-  // Row 1: Par row
-  // Row 2: Stroke Index row
-  // Rows 3+: player rows
-  if (!rows || rows.length < 3) return null;
+function parseCSVRaw(text) {
+  return text.trim().split('\n').map(line => {
+    const vals = [];
+    let cur = '', inQ = false;
+    for (const ch of line) {
+      if (ch === '"') inQ = !inQ;
+      else if (ch === ',' && !inQ) { vals.push(cur.trim()); cur = ''; }
+      else cur += ch;
+    }
+    vals.push(cur.trim());
+    return vals.map(v => v.replace(/"/g,'').trim());
+  });
+}
 
-  const headers = Object.keys(rows[0]);
-  // Find hole columns (numeric headers 1-18)
-  const holeKeys = headers.filter(h => /^\d+$/.test(h) && parseInt(h) >= 1 && parseInt(h) <= 18)
-                          .sort((a,b) => parseInt(a)-parseInt(b));
+function parseScorecardSheet(lines, weekNum) {
+  if (!lines || lines.length < 5) return null;
 
-  const metaRow = rows[0]; // first data row has date/course info in first few cells
-  const parRow  = rows[0];
-  const siRow   = rows[1];
+  // Row 1: date at index 2, course at index 8
+  const date   = lines[1]?.[2] || '';
+  const course = lines[1]?.[8] || '';
 
-  // Extract date and course from the raw first row values
-  const allVals = Object.values(rows[0]);
-  const date    = allVals[1] || '';
-  const course  = allVals[7] || '';
+  // Row 3: par values at indices 3-20
+  const par = lines[3]?.slice(3, 21).map(v => parseInt(v) || 0) || [];
 
-  const par = holeKeys.map(k => parseInt(rows[0][k]) || 0);
-  const si  = holeKeys.map(k => parseInt(rows[1][k]) || 0);
+  // Row 4: stroke index at indices 3-20
+  const si = lines[4]?.slice(3, 21).map(v => parseInt(v) || 0) || [];
 
+  // Rows 5+: player rows — index 1 is name
   const players = [];
-  for (let i = 2; i < rows.length; i++) {
-    const r = rows[i];
-    const nameVal = Object.values(r)[0];
-    if (!nameVal || !nameVal.trim()) continue;
-    const holes = holeKeys.map(k => parseInt(r[k]) || 0);
+  for (let i = 5; i < lines.length; i++) {
+    const row = lines[i];
+    if (!row) continue;
+    const name = row[1]?.trim();
+    if (!name || !name.length) continue;
+    const holes = row.slice(3, 21).map(v => parseInt(v) || 0);
     players.push({
-      name: nameVal.trim(),
-      idx:  parseFloat(Object.values(r)[1]) || 0,
+      name,
+      idx:  parseFloat(row[2]) || 0,
       holes,
-      out:  parseInt(r['OUT']) || holes.slice(0,9).reduce((a,b)=>a+b,0),
-      inn:  parseInt(r['IN'])  || holes.slice(9).reduce((a,b)=>a+b,0),
-      tot:  parseInt(r['TOT']) || holes.reduce((a,b)=>a+b,0),
-      hcp:  parseInt(r['HCP']) || 0,
-      net:  parseInt(r['NET']) || 0,
-      stab: parseInt(r['Stableford']) || 0,
+      out:  parseInt(row[21]) || 0,
+      inn:  parseInt(row[22]) || 0,
+      tot:  parseInt(row[23]) || 0,
+      hcp:  parseInt(row[24]) || 0,
+      net:  parseInt(row[25]) || 0,
+      stab: parseInt(row[26]?.toString().replace(/[^-\d]/g,'')) || 0,
     });
   }
 
@@ -719,7 +727,7 @@ async function init() {
       try {
         const res = await fetch(csvUrl(gid));
         const text = await res.text();
-        const rows = parseCSV(text);
+        const rows = parseCSVRaw(text);
         const sc = parseScorecardSheet(rows, parseInt(weekNum));
         if (sc) weeklyScorecard[weekNum] = sc;
       } catch(e) { console.warn(`Could not load scorecard week ${weekNum}`, e); }
