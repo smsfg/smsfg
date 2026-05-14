@@ -1,0 +1,1031 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SMSFG – Southern Maine Senior Fun Group</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Source+Sans+3:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --green-dark: #1a3d1f;
+    --green-mid: #2d5a34;
+    --green-light: #3d7a46;
+    --gold: #c9a84c;
+    --gold-light: #e8c96e;
+    --gold-pale: #f5e8c0;
+    --cream: #f8f4e8;
+    --text-dark: #1a1a1a;
+    --text-mid: #3a3a3a;
+    --text-muted: #6b6b6b;
+    --white: #ffffff;
+    --border: rgba(201,168,76,0.25);
+    --shadow: 0 2px 16px rgba(26,61,31,0.12);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Source Sans 3', sans-serif;
+    background: var(--cream);
+    color: var(--text-dark);
+    min-height: 100vh;
+  }
+
+  /* ── HEADER ── */
+  header {
+    background: var(--green-dark);
+    border-bottom: 3px solid var(--gold);
+    padding: 0;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+
+  .header-inner {
+    max-width: 1100px;
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    padding: 0.75rem 1.5rem;
+  }
+
+  .logo-wrap img {
+    height: 72px;
+    width: 72px;
+    object-fit: cover;
+    border-radius: 50%;
+    border: 2px solid var(--gold);
+  }
+
+  .site-title {
+    flex: 1;
+  }
+
+  .site-title h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.6rem;
+    font-weight: 900;
+    color: var(--gold-light);
+    letter-spacing: 0.02em;
+    line-height: 1.1;
+  }
+
+  .site-title p {
+    font-size: 0.8rem;
+    color: rgba(232,201,110,0.65);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    margin-top: 2px;
+  }
+
+  nav {
+    display: flex;
+    gap: 0.25rem;
+  }
+
+  nav button {
+    background: transparent;
+    border: 1px solid transparent;
+    color: rgba(232,201,110,0.75);
+    font-family: 'Source Sans 3', sans-serif;
+    font-size: 0.85rem;
+    font-weight: 500;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    padding: 0.45rem 0.9rem;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.18s;
+    white-space: nowrap;
+  }
+
+  nav button:hover, nav button.active {
+    background: rgba(201,168,76,0.15);
+    border-color: var(--gold);
+    color: var(--gold-light);
+  }
+
+  /* ── HERO BAND ── */
+  .season-band {
+    background: var(--green-mid);
+    border-bottom: 1px solid var(--border);
+    padding: 0.5rem 1.5rem;
+    text-align: center;
+    font-size: 0.8rem;
+    color: var(--gold-pale);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  /* ── MAIN LAYOUT ── */
+  main {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 2rem 1.5rem;
+  }
+
+  .page { display: none; }
+  .page.active { display: block; }
+
+  /* ── SECTION HEADING ── */
+  .section-heading {
+    display: flex;
+    align-items: baseline;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 2px solid var(--gold);
+  }
+
+  .section-heading h2 {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.6rem;
+    font-weight: 700;
+    color: var(--green-dark);
+  }
+
+  .section-heading span {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+
+  /* ── NOTES CARD ── */
+  .notes-card {
+    background: var(--green-dark);
+    border: 1px solid var(--gold);
+    border-radius: 8px;
+    padding: 1.25rem 1.5rem;
+    margin-bottom: 2rem;
+  }
+
+  .notes-card .notes-label {
+    font-size: 0.7rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 0.5rem;
+  }
+
+  .notes-card p {
+    color: var(--gold-pale);
+    font-size: 0.95rem;
+    line-height: 1.65;
+  }
+
+  /* ── STAT PILLS ── */
+  .stat-row {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+    flex-wrap: wrap;
+  }
+
+  .stat-pill {
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 0.75rem 1.25rem;
+    min-width: 140px;
+    flex: 1;
+    box-shadow: var(--shadow);
+  }
+
+  .stat-pill .label {
+    font-size: 0.72rem;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--text-muted);
+    margin-bottom: 0.3rem;
+  }
+
+  .stat-pill .value {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--green-dark);
+  }
+
+  /* ── SORT CONTROLS ── */
+  .sort-controls {
+    display: flex;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+    flex-wrap: wrap;
+    align-items: center;
+  }
+
+  .sort-controls span {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+  }
+
+  .sort-btn {
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 0.35rem 0.85rem;
+    font-family: 'Source Sans 3', sans-serif;
+    font-size: 0.82rem;
+    font-weight: 500;
+    color: var(--text-mid);
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+
+  .sort-btn:hover { border-color: var(--gold); color: var(--green-dark); }
+  .sort-btn.active {
+    background: var(--green-dark);
+    border-color: var(--green-dark);
+    color: var(--gold-light);
+  }
+
+  /* ── TABLE ── */
+  .table-wrap {
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: var(--shadow);
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.88rem;
+  }
+
+  thead tr {
+    background: var(--green-dark);
+  }
+
+  thead th {
+    padding: 0.75rem 0.9rem;
+    text-align: left;
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--gold-light);
+    white-space: nowrap;
+  }
+
+  thead th.num { text-align: right; }
+
+  tbody tr {
+    border-bottom: 1px solid rgba(201,168,76,0.1);
+    transition: background 0.12s;
+  }
+
+  tbody tr:last-child { border-bottom: none; }
+  tbody tr:hover { background: rgba(201,168,76,0.06); }
+
+  tbody tr.sub-row { background: rgba(26,61,31,0.03); }
+  tbody tr.sub-row td { color: var(--text-muted); font-style: italic; }
+
+  td {
+    padding: 0.65rem 0.9rem;
+    color: var(--text-dark);
+  }
+
+  td.num { text-align: right; font-variant-numeric: tabular-nums; }
+  td.rank { font-family: 'Playfair Display', serif; font-weight: 700; color: var(--green-dark); font-size: 1rem; }
+
+  .badge {
+    display: inline-block;
+    padding: 0.15rem 0.55rem;
+    border-radius: 3px;
+    font-size: 0.7rem;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+
+  .badge-ns { background: #eee; color: #888; }
+  .badge-inc { background: rgba(201,168,76,0.2); color: #7a5c10; }
+  .badge-sub { background: rgba(26,61,31,0.1); color: var(--green-mid); }
+  .badge-pos { color: #2d6a2d; font-weight: 600; }
+  .badge-neg { color: #a32d2d; font-weight: 600; }
+
+  /* ── WEEK SELECTOR ── */
+  .week-selector {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+    margin-bottom: 1.5rem;
+  }
+
+  .week-btn {
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 0.45rem 1rem;
+    font-family: 'Source Sans 3', sans-serif;
+    font-size: 0.85rem;
+    font-weight: 500;
+    color: var(--text-mid);
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+
+  .week-btn:hover { border-color: var(--gold); color: var(--green-dark); }
+  .week-btn.active { background: var(--green-dark); border-color: var(--green-dark); color: var(--gold-light); }
+
+  /* ── SCORECARD ── */
+  .scorecard-meta {
+    display: flex;
+    gap: 2rem;
+    margin-bottom: 1rem;
+    flex-wrap: wrap;
+  }
+
+  .scorecard-meta div { font-size: 0.9rem; }
+  .scorecard-meta .label { font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-muted); }
+  .scorecard-meta .val { font-weight: 600; color: var(--green-dark); }
+
+  .scorecard-wrap {
+    overflow-x: auto;
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    box-shadow: var(--shadow);
+  }
+
+  .scorecard-wrap table { min-width: 900px; }
+
+  .scorecard-wrap thead th { font-size: 0.7rem; padding: 0.6rem 0.5rem; }
+  .scorecard-wrap td { padding: 0.5rem 0.5rem; font-size: 0.82rem; text-align: center; }
+  .scorecard-wrap td.player-name { text-align: left; font-weight: 500; white-space: nowrap; padding-left: 0.9rem; }
+  .scorecard-wrap td.handicap-idx { color: var(--text-muted); font-size: 0.78rem; }
+
+  .par-row td { background: rgba(26,61,31,0.06); font-weight: 600; color: var(--green-dark); }
+  .si-row td { background: rgba(201,168,76,0.08); font-size: 0.75rem; color: var(--text-muted); }
+
+  .score-cell.birdie { background: rgba(45,90,52,0.15); border-radius: 50%; }
+  .score-cell.bogey { background: rgba(163,45,45,0.08); }
+  .score-cell.double { background: rgba(163,45,45,0.16); }
+
+  /* ── MONEY TABLE ── */
+  .money-note {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    margin-bottom: 1rem;
+    padding: 0.75rem 1rem;
+    background: var(--white);
+    border-left: 3px solid var(--gold);
+    border-radius: 0 6px 6px 0;
+  }
+
+  /* ── FOOTER ── */
+  footer {
+    text-align: center;
+    padding: 2rem;
+    font-size: 0.78rem;
+    color: var(--text-muted);
+    border-top: 1px solid var(--border);
+    margin-top: 3rem;
+  }
+
+  @media (max-width: 680px) {
+    .header-inner { flex-wrap: wrap; }
+    nav { flex-wrap: wrap; }
+    nav button { font-size: 0.78rem; padding: 0.4rem 0.65rem; }
+    .site-title h1 { font-size: 1.2rem; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-inner">
+    <div class="logo-wrap">
+      <img src="logo.jpg" alt="SMSFG Logo">
+    </div>
+    <div class="site-title">
+      <h1>SMSFG</h1>
+      <p>Southern Maine Senior Fun Group</p>
+    </div>
+    <nav>
+      <button class="active" onclick="showPage('standings', this)">Standings</button>
+      <button onclick="showPage('weekly', this)">Weekly Results</button>
+      <button onclick="showPage('scorecard', this)">Scorecards</button>
+      <button onclick="showPage('money', this)">Money</button>
+      <button onclick="showPage('nextweek', this)">Next Week</button>
+    </nav>
+  </div>
+</header>
+
+<div class="season-band">⛳ &nbsp; 2025 Season &nbsp;·&nbsp; Week 4 of 18 &nbsp;·&nbsp; Val Halla Golf Club</div>
+
+<main>
+
+  <!-- ══════════════════ STANDINGS PAGE ══════════════════ -->
+  <div id="page-standings" class="page active">
+
+    <div class="notes-card">
+      <div class="notes-label">📋 Commissioner's Notes — Week 4</div>
+      <p>Great turnout this week despite the weather. Reminder: money from weeks 1–3 will be collected at the start of Week 5. Season standings are now live — you need 3 rounds to appear. Players with fewer than 6 rounds are marked <em>incomplete</em>. Contact Scott with any scoring questions.</p>
+    </div>
+
+    <div class="section-heading">
+      <h2>Season Standings</h2>
+      <span>Regulars only · Best 5 of weeks 2–6</span>
+    </div>
+
+    <div class="stat-row">
+      <div class="stat-pill"><div class="label">Weeks Played</div><div class="value">4</div></div>
+      <div class="stat-pill"><div class="label">Regulars</div><div class="value">16</div></div>
+      <div class="stat-pill"><div class="label">Season Leader</div><div class="value" style="font-size:1.1rem;">J. Murphy</div></div>
+      <div class="stat-pill"><div class="label">Points Leader</div><div class="value">18 pts</div></div>
+    </div>
+
+    <div class="sort-controls">
+      <span>Sort by:</span>
+      <button class="sort-btn active" onclick="sortTable('standings-table', 0, this)">Season Pts</button>
+      <button class="sort-btn" onclick="sortTable('standings-table', 3, this)">Avg Gross</button>
+      <button class="sort-btn" onclick="sortTable('standings-table', 4, this)">Avg Net</button>
+      <button class="sort-btn" onclick="sortTable('standings-table', 5, this)">Net Cash</button>
+    </div>
+
+    <div class="table-wrap">
+      <table id="standings-table">
+        <thead>
+          <tr>
+            <th>Player</th>
+            <th class="num">Season Pts</th>
+            <th class="num">Rounds</th>
+            <th class="num">Avg Gross</th>
+            <th class="num">Avg Net</th>
+            <th class="num">Net Cash</th>
+            <th>Type</th>
+          </tr>
+        </thead>
+        <tbody id="standings-body">
+        </tbody>
+      </table>
+    </div>
+    <p style="font-size:0.78rem; color:var(--text-muted); margin-top:0.75rem;">⚠ <em>Incomplete</em> = fewer than 6 rounds played. Season points: sum of 2nd–6th best Stableford scores. NS = fewer than 3 rounds.</p>
+  </div>
+
+  <!-- ══════════════════ WEEKLY RESULTS PAGE ══════════════════ -->
+  <div id="page-weekly" class="page">
+
+    <div class="section-heading">
+      <h2>Weekly Results</h2>
+      <span>Select a week below</span>
+    </div>
+
+    <div class="week-selector" id="weekly-week-selector"></div>
+
+    <div id="weekly-content"></div>
+  </div>
+
+  <!-- ══════════════════ SCORECARD PAGE ══════════════════ -->
+  <div id="page-scorecard" class="page">
+
+    <div class="section-heading">
+      <h2>Scorecards</h2>
+      <span>Hole-by-hole · For GHIN posting reference</span>
+    </div>
+
+    <div class="week-selector" id="scorecard-week-selector"></div>
+
+    <div id="scorecard-content"></div>
+  </div>
+
+  <!-- ══════════════════ MONEY PAGE ══════════════════ -->
+  <div id="page-money" class="page">
+
+    <div class="section-heading">
+      <h2>Money Summary</h2>
+      <span>All players · Season to date</span>
+    </div>
+
+    <div class="sort-controls">
+      <span>Sort by:</span>
+      <button class="sort-btn active" onclick="sortTable('money-table', 3, this)">Net Cash</button>
+      <button class="sort-btn" onclick="sortTable('money-table', 2, this)">Gross Cash</button>
+      <button class="sort-btn" onclick="sortTable('money-table', 0, this)">Player</button>
+      <button class="sort-btn" onclick="sortTable('money-table', 4, this)">Rounds</button>
+      <button class="sort-btn" onclick="sortTable('money-table', 5, this)">Skins</button>
+      <button class="sort-btn" onclick="sortTable('money-table', 'ctp', this)">CTP</button>
+    </div>
+
+    <div class="table-wrap">
+      <table id="money-table">
+        <thead>
+          <tr>
+            <th>Player</th>
+            <th>Type</th>
+            <th class="num">Gross Cash Won</th>
+            <th class="num">Net Cash Won</th>
+            <th class="num">Rounds</th>
+            <th class="num">Skins</th>
+            <th class="num">CTP Front</th>
+            <th class="num">CTP Back</th>
+          </tr>
+        </thead>
+        <tbody id="money-body"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ══════════════════ NEXT WEEK PAGE ══════════════════ -->
+  <div id="page-nextweek" class="page">
+
+    <div class="section-heading">
+      <h2>Next Week</h2>
+      <span id="nextweek-subtitle">Foursomes &amp; tee times</span>
+    </div>
+
+    <div id="nextweek-content"></div>
+  </div>
+
+</main>
+
+<footer>
+  Southern Maine Senior Fun Group &nbsp;·&nbsp; smsfg.org &nbsp;·&nbsp; Updated weekly
+</footer>
+
+<script>
+// ══════════════════════════════════════════════
+// ✏️  EDIT THIS SECTION EACH WEEK
+// ══════════════════════════════════════════════
+
+const config = {
+  season: '2026',
+  currentWeek: 4,
+  totalWeeks: 18,
+  currentCourse: 'Val Halla Golf Club',
+
+  // Commissioner's Notes — update this each week
+  notesWeek: 4,
+  notes: `Great turnout this week despite the weather. Reminder: money from weeks 1–3 will be collected at the start of Week 5. Season standings are now live — you need 3 rounds to appear. Players with fewer than 6 rounds are marked <em>incomplete</em>. Contact Scott with any scoring questions.`,
+
+  // Next Week info — update when available, set available: false to show "TBD"
+  nextWeek: {
+    available: false,
+    weekNum: 5,
+    date: '',
+    course: '',
+    foursomes: []
+    // When available, foursomes format:
+    // foursomes: [
+    //   { teeTime: '8:00 AM', hole: 1, players: ['John Murphy', 'Scott Wiley', 'Kevin Riley', 'Jack McGarry'] },
+    //   { teeTime: '8:10 AM', hole: 1, players: ['Scott Beliveau', 'Dave Shaw', 'Tim Fitzgerald', 'Ron Gagnon'] },
+    // ]
+  }
+};
+
+// ══════════════════════════════════════════════
+// SAMPLE DATA — Replace with Google Sheets CSV pull
+// ══════════════════════════════════════════════
+
+const archiveData = [
+  {week:1, date:'Jun 3, 2024', course:'Val Halla Golf', player:'Scott Beliveau', type:'Regular', index:24.8, gross:96, net:74, stableford:1, skins:3, ctpF:0, ctpB:0, cash:60.5, team:'F'},
+  {week:1, date:'Jun 3, 2024', course:'Val Halla Golf', player:'Don Boutin',      type:'Regular', index:20.2, gross:95, net:78, stableford:-5, skins:0, ctpF:0, ctpB:0, cash:0, team:'D'},
+  {week:1, date:'Jun 3, 2024', course:'Val Halla Golf', player:'Bret Drew',       type:'Regular', index:15, gross:86, net:75, stableford:-3, skins:0, ctpF:0, ctpB:0, cash:0, team:'G'},
+  {week:1, date:'Jun 3, 2024', course:'Val Halla Golf', player:'Tim Fitzgerald',  type:'Regular', index:15.9, gross:94, net:82, stableford:-9, skins:0, ctpF:0, ctpB:0, cash:0, team:'E'},
+  {week:1, date:'Jun 3, 2024', course:'Val Halla Golf', player:'Ron Gagnon',      type:'Regular', index:15.7, gross:104, net:92, stableford:-15, skins:0, ctpF:0, ctpB:0, cash:0, team:'A'},
+  {week:1, date:'Jun 3, 2024', course:'Val Halla Golf', player:'Tim Gikas',       type:'Regular', index:11.1, gross:91, net:84, stableford:-11, skins:0, ctpF:0, ctpB:0, cash:0, team:'D'},
+  {week:1, date:'Jun 3, 2024', course:'Val Halla Golf', player:'Mike Graef',      type:'Regular', index:8.6, gross:92, net:87, stableford:-14, skins:0, ctpF:0, ctpB:1, cash:20, team:'G'},
+  {week:1, date:'Jun 3, 2024', course:'Val Halla Golf', player:'Rick Heenan',     type:'Regular', index:16.6, gross:93, net:80, stableford:-8, skins:0, ctpF:0, ctpB:0, cash:0, team:'A'},
+  {week:1, date:'Jun 3, 2024', course:'Val Halla Golf', player:'Chris Jerome',    type:'Regular', index:17.1, gross:90, net:76, stableford:-4, skins:0, ctpF:0, ctpB:0, cash:0, team:'B'},
+  {week:1, date:'Jun 3, 2024', course:'Val Halla Golf', player:'Paul Keenan',     type:'Regular', index:12.3, gross:85, net:76, stableford:-4, skins:0, ctpF:0, ctpB:0, cash:20, team:'H'},
+  {week:1, date:'Jun 3, 2024', course:'Val Halla Golf', player:'Jack McGarry',    type:'Regular', index:14.4, gross:89, net:78, stableford:-6, skins:1, ctpF:0, ctpB:0, cash:7.5, team:'B'},
+  {week:1, date:'Jun 3, 2024', course:'Val Halla Golf', player:'John Murphy',     type:'Regular', index:17.5, gross:81, net:67, stableford:6, skins:1, ctpF:1, ctpB:0, cash:97.5, team:'C'},
+  {week:1, date:'Jun 3, 2024', course:'Val Halla Golf', player:'Kevin Riley',     type:'Regular', index:13.5, gross:85, net:75, stableford:-1, skins:1, ctpF:0, ctpB:0, cash:39.5, team:'H'},
+  {week:1, date:'Jun 3, 2024', course:'Val Halla Golf', player:'John Seubert',    type:'Regular', index:21.1, gross:97, net:79, stableford:-6, skins:1, ctpF:0, ctpB:0, cash:27.5, team:'F'},
+  {week:1, date:'Jun 3, 2024', course:'Val Halla Golf', player:'Dave Shaw',       type:'Regular', index:24.4, gross:97, net:76, stableford:-2, skins:0, ctpF:0, ctpB:0, cash:0, team:'E'},
+  {week:1, date:'Jun 3, 2024', course:'Val Halla Golf', player:'Scott Wiley',     type:'Regular', index:13.7, gross:86, net:76, stableford:-4, skins:1, ctpF:0, ctpB:0, cash:47.5, team:'C'},
+];
+
+const weeklyScorecard = {
+  1: {
+    date: 'Jun 3, 2024', course: 'Val Halla Golf', week: 1,
+    par: [4,4,3,5,4,4,4,3,5, 4,3,5,4,4,4,4,3,5],
+    si:  [3,7,15,11,5,1,9,17,13, 6,12,16,18,4,10,2,8,14],
+    players: [
+      {name:'Scott Beliveau', idx:24.8, holes:[6,5,3,4,6,5,5,5,7,6,5,7,3,6,6,6,6,5], out:46, inn:50, tot:96, hcp:22, net:74, stab:1, skins:3, team:'F', win:60.5},
+      {name:'Don Boutin',     idx:20.2, holes:[5,7,3,6,5,5,6,5,6,6,5,6,6,5,5,5,3,6], out:48, inn:47, tot:95, hcp:17, net:78, stab:-5, skins:0, team:'D', win:0},
+      {name:'Bret Drew',      idx:15,   holes:[6,5,3,6,6,5,4,3,5,6,4,5,4,5,6,5,3,5], out:43, inn:43, tot:86, hcp:11, net:75, stab:-3, skins:0, team:'G', win:0},
+      {name:'Tim Fitzgerald', idx:15.9, holes:[5,5,4,5,7,6,5,4,5,6,4,7,6,6,4,4,4,7], out:46, inn:48, tot:94, hcp:12, net:82, stab:-9, skins:0, team:'E', win:0},
+      {name:'Ron Gagnon',     idx:15.7, holes:[7,4,6,7,6,7,7,4,6,7,4,6,5,6,6,5,4,7], out:54, inn:50, tot:104, hcp:12, net:92, stab:-15, skins:0, team:'A', win:0},
+      {name:'Tim Gikas',      idx:11.1, holes:[5,6,5,6,6,5,4,4,7,5,3,4,5,6,5,6,4,5], out:48, inn:43, tot:91, hcp:7, net:84, stab:-11, skins:0, team:'D', win:0},
+      {name:'Mike Graef',     idx:8.6,  holes:[6,4,5,7,6,5,4,6,7,4,3,6,4,5,6,4,4,6], out:50, inn:42, tot:92, hcp:5, net:87, stab:-14, skins:0, team:'G', win:20},
+      {name:'Rick Heenan',    idx:16.6, holes:[5,4,4,7,4,6,5,5,7,6,5,6,5,5,4,5,4,6], out:47, inn:46, tot:93, hcp:13, net:80, stab:-8, skins:0, team:'A', win:0},
+      {name:'Chris Jerome',   idx:17.1, holes:[6,4,4,6,6,5,5,3,7,5,4,6,5,6,5,4,4,5], out:46, inn:44, tot:90, hcp:14, net:76, stab:-4, skins:0, team:'B', win:0},
+      {name:'Paul Keenan',    idx:12.3, holes:[5,4,4,6,4,4,4,5,6,6,4,5,5,5,5,4,4,5], out:42, inn:43, tot:85, hcp:9, net:76, stab:-4, skins:0, team:'H', win:20},
+      {name:'Jack McGarry',   idx:14.4, holes:[5,4,5,7,4,5,5,4,7,5,4,6,5,4,5,5,3,6], out:46, inn:43, tot:89, hcp:11, net:78, stab:-6, skins:1, team:'B', win:7.5},
+      {name:'John Murphy',    idx:17.5, holes:[4,4,3,6,6,4,4,4,5,6,4,4,4,5,4,4,4,6], out:40, inn:41, tot:81, hcp:14, net:67, stab:6, skins:1, team:'C', win:97.5},
+      {name:'Kevin Riley',    idx:13.5, holes:[6,6,4,5,4,5,5,5,5,5,3,6,4,5,5,6,2,4], out:45, inn:40, tot:85, hcp:10, net:75, stab:-1, skins:1, team:'H', win:39.5},
+      {name:'John Seubert',   idx:21.1, holes:[4,4,4,6,6,6,6,4,5,6,6,7,5,6,6,5,4,7], out:45, inn:52, tot:97, hcp:18, net:79, stab:-6, skins:1, team:'F', win:27.5},
+      {name:'Dave Shaw',      idx:24.4, holes:[5,5,4,6,6,6,6,4,6,5,6,5,5,6,5,7,5,5], out:48, inn:49, tot:97, hcp:21, net:76, stab:-2, skins:0, team:'E', win:0},
+      {name:'Scott Wiley',    idx:13.7, holes:[4,5,4,5,5,6,5,4,6,4,4,5,4,5,4,6,4,6], out:44, inn:42, tot:86, hcp:10, net:76, stab:-4, skins:1, team:'C', win:47.5},
+    ]
+  }
+};
+
+// ══════════════════════════════════════════════
+// STANDINGS LOGIC
+// ══════════════════════════════════════════════
+
+function computeStandings() {
+  const players = {};
+  archiveData.forEach(row => {
+    if (!players[row.player]) {
+      players[row.player] = { player: row.player, type: row.type, rounds: 0, grossScores: [], netScores: [], stablefords: [], cash: 0, skins: 0, ctpF: 0, ctpB: 0 };
+    }
+    const p = players[row.player];
+    p.rounds++;
+    p.grossScores.push(row.gross);
+    p.netScores.push(row.net);
+    p.stablefords.push(row.stableford);
+    p.cash += row.cash;
+    p.skins += row.skins;
+    p.ctpF += row.ctpF;
+    p.ctpB += row.ctpB;
+  });
+
+  return Object.values(players).map(p => {
+    const avgGross = (p.grossScores.reduce((a,b)=>a+b,0)/p.rounds).toFixed(1);
+    const avgNet   = (p.netScores.reduce((a,b)=>a+b,0)/p.rounds).toFixed(1);
+    const netCash  = p.cash - (20 * p.rounds);
+    let seasonPts = null;
+    let status = 'ns';
+    if (p.rounds >= 3 && p.type === 'Regular') {
+      const sorted = [...p.stablefords].sort((a,b)=>b-a);
+      const relevant = sorted.slice(1, 6);
+      seasonPts = relevant.reduce((a,b)=>a+b,0);
+      status = p.rounds >= 6 ? 'full' : 'incomplete';
+    }
+    return { ...p, avgGross, avgNet, netCash, seasonPts, status };
+  });
+}
+
+function renderStandings(sortCol = 1) {
+  const data = computeStandings();
+
+  data.sort((a, b) => {
+    if (sortCol === 0) {
+      if (a.seasonPts === null && b.seasonPts === null) return a.player.localeCompare(b.player);
+      if (a.seasonPts === null) return 1;
+      if (b.seasonPts === null) return -1;
+      return b.seasonPts - a.seasonPts;
+    }
+    if (sortCol === 3) return parseFloat(a.avgGross) - parseFloat(b.avgGross);
+    if (sortCol === 4) return parseFloat(a.avgNet) - parseFloat(b.avgNet);
+    if (sortCol === 5) return b.netCash - a.netCash;
+    return 0;
+  });
+
+  let rank = 1;
+  const tbody = document.getElementById('standings-body');
+  tbody.innerHTML = '';
+  data.forEach(p => {
+    const isRegular = p.type === 'Regular';
+    const isRanked  = isRegular && p.status !== 'ns';
+    const tr = document.createElement('tr');
+    if (!isRegular) tr.classList.add('sub-row');
+
+    if (isRanked) rank++;
+
+    let ptsCell = '';
+    if (!isRegular) ptsCell = `<td class="num"><span class="badge badge-sub">Sub</span></td>`;
+    else if (p.status === 'ns') ptsCell = `<td class="num"><span class="badge badge-ns">NS</span></td>`;
+    else if (p.status === 'incomplete') ptsCell = `<td class="num">${p.seasonPts} <span class="badge badge-inc">Inc</span></td>`;
+    else ptsCell = `<td class="num" style="font-weight:600;">${p.seasonPts}</td>`;
+
+    const cashClass = p.netCash >= 0 ? 'badge-pos' : 'badge-neg';
+    const cashSign  = p.netCash >= 0 ? '+' : '';
+
+    tr.innerHTML = `
+      <td style="font-weight:500;">${p.player}</td>
+      ${ptsCell}
+      <td class="num">${p.rounds}</td>
+      <td class="num">${p.avgGross}</td>
+      <td class="num">${p.avgNet}</td>
+      <td class="num"><span class="${cashClass}">${cashSign}$${p.netCash.toFixed(2)}</span></td>
+      <td><span class="badge ${isRegular ? '' : 'badge-sub'}">${p.type}</span></td>
+    `;
+    tbody.appendChild(tr);
+  });
+}
+
+// ══════════════════════════════════════════════
+// WEEKLY RESULTS
+// ══════════════════════════════════════════════
+
+function renderWeeklySelector() {
+  const weeks = [...new Set(archiveData.map(r => r.week))].sort((a,b)=>a-b);
+  const sel = document.getElementById('weekly-week-selector');
+  sel.innerHTML = '';
+  weeks.forEach((w, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'week-btn' + (i === 0 ? ' active' : '');
+    btn.textContent = `Week ${w}`;
+    btn.onclick = () => {
+      sel.querySelectorAll('.week-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      renderWeeklyResults(w);
+    };
+    sel.appendChild(btn);
+  });
+  if (weeks.length) renderWeeklyResults(weeks[0]);
+}
+
+function renderWeeklyResults(week) {
+  const rows = archiveData.filter(r => r.week === week).sort((a,b)=> b.stableford - a.stableford);
+  const first = rows[0];
+  const div = document.getElementById('weekly-content');
+
+  const teamTotals = {};
+  rows.forEach(r => {
+    if (!teamTotals[r.team]) teamTotals[r.team] = 0;
+    teamTotals[r.team] += r.stableford;
+  });
+  const teamsSorted = Object.entries(teamTotals).sort((a,b)=>b[1]-a[1]);
+
+  div.innerHTML = `
+    <div class="scorecard-meta" style="margin-bottom:1.25rem;">
+      <div><div class="label">Date</div><div class="val">${first.date}</div></div>
+      <div><div class="label">Course</div><div class="val">${first.course}</div></div>
+      <div><div class="label">Players</div><div class="val">${rows.length}</div></div>
+      <div><div class="label">Low Gross</div><div class="val">${rows.slice().sort((a,b)=>a.gross-b.gross)[0].player.split(' ')[1]} (${rows.slice().sort((a,b)=>a.gross-b.gross)[0].gross})</div></div>
+      <div><div class="label">Low Net</div><div class="val">${rows.slice().sort((a,b)=>a.net-b.net)[0].player.split(' ')[1]} (${rows.slice().sort((a,b)=>a.net-b.net)[0].net})</div></div>
+      <div><div class="label">Team Win</div><div class="val">Team ${teamsSorted[0][0]} (${teamsSorted[0][1] >= 0 ? '+' : ''}${teamsSorted[0][1]})</div></div>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Player</th>
+            <th>Type</th>
+            <th class="num">Index</th>
+            <th class="num">Gross</th>
+            <th class="num">Net</th>
+            <th class="num">Stableford</th>
+            <th class="num">Skins</th>
+            <th class="num">CTP-F</th>
+            <th class="num">CTP-B</th>
+            <th class="num">Cash Won</th>
+            <th class="num">Team</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${rows.map(r => {
+            const cashClass = r.cash > 0 ? 'badge-pos' : 'badge-neg';
+            const stabClass = r.stableford > 0 ? 'badge-pos' : r.stableford < -8 ? 'badge-neg' : '';
+            return `<tr>
+              <td style="font-weight:500;">${r.player}</td>
+              <td><span class="badge ${r.type === 'Sub' ? 'badge-sub' : ''}">${r.type}</span></td>
+              <td class="num">${r.index}</td>
+              <td class="num">${r.gross}</td>
+              <td class="num">${r.net}</td>
+              <td class="num"><span class="${stabClass}" style="font-weight:${r.stableford>0?'600':'400'}">${r.stableford>0?'+':''}${r.stableford}</span></td>
+              <td class="num">${r.skins || '—'}</td>
+              <td class="num">${r.ctpF ? '✓' : '—'}</td>
+              <td class="num">${r.ctpB ? '✓' : '—'}</td>
+              <td class="num"><span class="${cashClass}">$${r.cash.toFixed(2)}</span></td>
+              <td class="num" style="font-weight:600;">${r.team}</td>
+            </tr>`;
+          }).join('')}
+        </tbody>
+      </table>
+    </div>
+    <p style="font-size:0.78rem;color:var(--text-muted);margin-top:0.5rem;">Sorted by Stableford score. Cash shown is gross — does not include $20 entry fee.</p>
+  `;
+}
+
+// ══════════════════════════════════════════════
+// SCORECARDS
+// ══════════════════════════════════════════════
+
+function renderScorecardSelector() {
+  const weeks = Object.keys(weeklyScorecard).map(Number).sort((a,b)=>a-b);
+  const sel = document.getElementById('scorecard-week-selector');
+  sel.innerHTML = '';
+  weeks.forEach((w, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'week-btn' + (i === 0 ? ' active' : '');
+    btn.textContent = `Week ${w}`;
+    btn.onclick = () => {
+      sel.querySelectorAll('.week-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      renderScorecard(w);
+    };
+    sel.appendChild(btn);
+  });
+  if (weeks.length) renderScorecard(weeks[0]);
+}
+
+function renderScorecard(week) {
+  const sc = weeklyScorecard[week];
+  const div = document.getElementById('scorecard-content');
+  const holes = Array.from({length:18}, (_,i)=>i+1);
+
+  const outPar = sc.par.slice(0,9).reduce((a,b)=>a+b,0);
+  const inPar  = sc.par.slice(9).reduce((a,b)=>a+b,0);
+
+  div.innerHTML = `
+    <div class="scorecard-meta">
+      <div><div class="label">Date</div><div class="val">${sc.date}</div></div>
+      <div><div class="label">Course</div><div class="val">${sc.course}</div></div>
+      <div><div class="label">Week</div><div class="val">${sc.week}</div></div>
+    </div>
+    <div class="scorecard-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th style="text-align:left;padding-left:0.9rem;">Player</th>
+            <th>Idx</th>
+            ${holes.map(h=>`<th>${h}</th>`).join('')}
+            <th>OUT</th><th>IN</th><th>TOT</th><th>HCP</th><th>NET</th><th>Stab</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr class="par-row">
+            <td class="player-name">Par</td><td></td>
+            ${sc.par.map((p,i)=>`<td${i===8?' style="border-right:2px solid var(--border)"':''}>${p}</td>`).join('')}
+            <td>${outPar}</td><td>${inPar}</td><td>${outPar+inPar}</td><td></td><td></td><td></td>
+          </tr>
+          <tr class="si-row">
+            <td class="player-name" style="font-size:0.75rem;color:var(--text-muted);">Stroke Index</td><td></td>
+            ${sc.si.map((s,i)=>`<td${i===8?' style="border-right:2px solid var(--border)"':''}>${s}</td>`).join('')}
+            <td colspan="9"></td>
+          </tr>
+          ${sc.players.map(p => {
+            const cells = p.holes.map((s, i) => {
+              const par = sc.par[i];
+              let cls = '';
+              if (s < par) cls = 'birdie';
+              else if (s === par+1) cls = 'bogey';
+              else if (s >= par+2) cls = 'double';
+              const sep = i===8 ? ' style="border-right:2px solid var(--border)"' : '';
+              return `<td class="score-cell ${cls}"${sep}>${s}</td>`;
+            }).join('');
+            const winClass = p.win > 0 ? 'badge-pos' : '';
+            return `<tr>
+              <td class="player-name">${p.name}</td>
+              <td class="handicap-idx">${p.idx}</td>
+              ${cells}
+              <td style="font-weight:500;">${p.out}</td>
+              <td style="font-weight:500;">${p.inn}</td>
+              <td style="font-weight:600;">${p.tot}</td>
+              <td>${p.hcp}</td>
+              <td>${p.net}</td>
+              <td style="font-weight:${p.stab>0?'600':'400'};color:${p.stab>0?'var(--green-mid)':'inherit'}">${p.stab>0?'+':''}${p.stab}</td>
+            </tr>`;
+          }).join('')}
+        </tbody>
+      </table>
+    </div>
+    <p style="font-size:0.78rem;color:var(--text-muted);margin-top:0.5rem;">Shading: <span style="background:rgba(45,90,52,0.15);padding:1px 6px;border-radius:3px;">birdie or better</span> · <span style="background:rgba(163,45,45,0.08);padding:1px 6px;border-radius:3px;">bogey</span> · <span style="background:rgba(163,45,45,0.16);padding:1px 6px;border-radius:3px;">double+</span></p>
+  `;
+}
+
+// ══════════════════════════════════════════════
+// MONEY
+// ══════════════════════════════════════════════
+
+function renderMoney() {
+  const players = {};
+  archiveData.forEach(row => {
+    if (!players[row.player]) players[row.player] = { player: row.player, type: row.type, rounds: 0, cash: 0, skins: 0, ctpF: 0, ctpB: 0 };
+    const p = players[row.player];
+    p.rounds++;
+    p.cash += row.cash;
+    p.skins += row.skins;
+    p.ctpF += row.ctpF;
+    p.ctpB += row.ctpB;
+  });
+  const data = Object.values(players).map(p => ({ ...p, netCash: p.cash - 20 * p.rounds }));
+  data.sort((a,b) => b.netCash - a.netCash);
+
+  const tbody = document.getElementById('money-body');
+  tbody.innerHTML = '';
+  data.forEach(p => {
+    const cashClass = p.netCash >= 0 ? 'badge-pos' : 'badge-neg';
+    const cashSign  = p.netCash >= 0 ? '+' : '';
+    const tr = document.createElement('tr');
+    if (p.type !== 'Regular') tr.classList.add('sub-row');
+    tr.innerHTML = `
+      <td style="font-weight:500;">${p.player}</td>
+      <td><span class="badge ${p.type!=='Regular'?'badge-sub':''}">${p.type}</span></td>
+      <td class="num">$${p.cash.toFixed(2)}</td>
+      <td class="num"><span class="${cashClass}" style="font-weight:600;">${cashSign}$${Math.abs(p.netCash).toFixed(2)}</span></td>
+      <td class="num">${p.rounds}</td>
+      <td class="num">${p.skins}</td>
+      <td class="num">${p.ctpF}</td>
+      <td class="num">${p.ctpB}</td>
+    `;
+    tbody.appendChild(tr);
+  });
+}
+
+// ══════════════════════════════════════════════
+// SORT TABLE
+// ══════════════════════════════════════════════
+
+function sortTable(tableId, col, btn) {
+  document.querySelectorAll('.sort-btn').forEach(b => {
+    if (b.closest('.sort-controls') === btn.closest('.sort-controls')) b.classList.remove('active');
+  });
+  btn.classList.add('active');
+  if (tableId === 'standings-table') { renderStandings(col); return; }
+  if (tableId === 'money-table') {
+    const tbody = document.getElementById('money-body');
+    const rows = Array.from(tbody.querySelectorAll('tr'));
+    rows.sort((a, b) => {
+      if (col === 'ctp') {
+        const aVal = (parseInt(a.cells[6]?.textContent.trim()) || 0) + (parseInt(a.cells[7]?.textContent.trim()) || 0);
+        const bVal = (parseInt(b.cells[6]?.textContent.trim()) || 0) + (parseInt(b.cells[7]?.textContent.trim()) || 0);
+        return bVal - aVal;
+      }
+      const aVal = a.cells[col]?.textContent.replace(/[$+,]/g,'').trim() || '';
+      const bVal = b.cells[col]?.textContent.replace(/[$+,]/g,'').trim() || '';
+      const aNum = parseFloat(aVal);
+      const bNum = parseFloat(bVal);
+      if (!isNaN(aNum) && !isNaN(bNum)) return bNum - aNum;
+      return aVal.localeCompare(bVal);  // text: A→Z
+    });
+    rows.forEach(r => tbody.appendChild(r));
+  }
+}
+
+// ══════════════════════════════════════════════
+// NAVIGATION
+// ══════════════════════════════════════════════
+
+function showPage(page, btn) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('nav button').forEach(b => b.classList.remove('active'));
+  document.getElementById('page-' + page).classList.add('active');
+  if (btn) btn.classList.add('active');
+}
+
+// ══════════════════════════════════════════════
+// NEXT WEEK
+// ══════════════════════════════════════════════
+
+function renderNextWeek() {
+  const nw = config.nextWeek;
+  const div = document.getElementById('nextweek-content');
+  const sub = document.getElementById('nextweek-subtitle');
+
+  if (!nw.available) {
+    sub.textContent = 'Coming soon';
+    div.innerHTML = `
+      <div class="notes-card" style="text-align:center; padding: 2.5rem;">
+        <div class="notes-label" style="margin-bottom:0.75rem;">Week ${nw.weekNum} Foursomes</div>
+        <p style="font-size:1.1rem; opacity:0.8;">Tee times and pairings will be posted here once available.</p>
+        <p style="font-size:0.85rem; opacity:0.55; margin-top:0.5rem;">Check back closer to the round.</p>
+      </div>`;
+    return;
+  }
+
+  sub.textContent = `Week ${nw.weekNum} · ${nw.date} · ${nw.course}`;
+  div.innerHTML = `
+    <div class="scorecard-meta" style="margin-bottom:1.5rem;">
+      <div><div class="label">Date</div><div class="val">${nw.date}</div></div>
+      <div><div class="label">Course</div><div class="val">${nw.course}</div></div>
+      <div><div class="label">Groups</div><div class="val">${nw.foursomes.length}</div></div>
+    </div>
+    <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(260px,1fr)); gap:1rem;">
+      ${nw.foursomes.map((g, i) => `
+        <div class="table-wrap" style="padding:1rem 1.25rem;">
+          <div style="display:flex; justify-content:space-between; align-items:baseline; margin-bottom:0.75rem; padding-bottom:0.5rem; border-bottom:1px solid var(--border);">
+            <span style="font-family:'Playfair Display',serif; font-size:1rem; font-weight:700; color:var(--green-dark);">Group ${i+1}</span>
+            <span style="font-size:0.78rem; color:var(--text-muted);">${g.teeTime}${g.hole ? ' · Hole ' + g.hole : ''}</span>
+          </div>
+          ${g.players.map(name => `
+            <div style="padding:0.35rem 0; font-size:0.9rem; font-weight:500; border-bottom:1px solid rgba(201,168,76,0.08);">${name}</div>
+          `).join('')}
+        </div>
+      `).join('')}
+    </div>`;
+}
+
+// ══════════════════════════════════════════════
+// INIT
+// ══════════════════════════════════════════════
+
+renderStandings(0);
+renderWeeklySelector();
+renderScorecardSelector();
+renderMoney();
+renderNextWeek();
+
+// Apply config to page elements
+document.querySelector('.season-band').innerHTML =
+  `⛳ &nbsp; ${config.season} Season &nbsp;·&nbsp; Week ${config.currentWeek} of ${config.totalWeeks} &nbsp;·&nbsp; ${config.currentCourse}`;
+document.querySelector('.notes-card .notes-label').textContent =
+  `📋 Commissioner's Notes — Week ${config.notesWeek}`;
+document.querySelector('.notes-card p').innerHTML = config.notes;
+</script>
+</body>
+</html>
