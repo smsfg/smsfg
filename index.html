@@ -566,7 +566,6 @@ const config = {
   notesWeek: 1,
   notes: `Welcome to the 2026 SMSFG season! Season standings are now live — you need 3 rounds to appear. Players with fewer than 6 rounds are marked <em>incomplete</em>. Contact Scott with any scoring questions.`,
 
-  // Next Week info — update when available, set available: false to show "TBD"
   nextWeek: {
     available: true,
     weekNum: 2,
@@ -664,9 +663,9 @@ function parseCSVRaw(text) {
 function parseScorecardSheet(lines, weekNum) {
   if (!lines || lines.length < 5) return null;
 
-  // Row 1: date at index 2, course at index 8 (cell I2)
+  // Row 1: date at index 2, course looked up from archive data
   const date   = lines[1]?.[2] || '';
-  const course = lines[1]?.[8] || '';
+  const course = globalArchiveData.find(r => r.week === weekNum)?.course || '';
 
   // Row 3: par values at indices 3-20
   const par = lines[3]?.slice(3, 21).map(v => parseInt(v) || 0) || [];
