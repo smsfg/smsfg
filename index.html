@@ -664,9 +664,9 @@ function parseCSVRaw(text) {
 function parseScorecardSheet(lines, weekNum) {
   if (!lines || lines.length < 5) return null;
 
-  // Row 1: date at index 2, course from config
+  // Row 1: date at index 2, course at index 8 (cell I2)
   const date   = lines[1]?.[2] || '';
-  const course = config.currentCourse || '';
+  const course = lines[1]?.[8] || '';
 
   // Row 3: par values at indices 3-20
   const par = lines[3]?.slice(3, 21).map(v => parseInt(v) || 0) || [];
@@ -721,7 +721,7 @@ async function init() {
     // Find all unique week numbers from archive to know which scorecard sheets to fetch
     const weeks = [...new Set(archiveData.map(r => r.week))].sort((a,b)=>a-b);
 
-    // Fetch scorecard sheets — we know Week 1 gid, add more here as weeks progress
+    // Fetch scorecard sheets — add a new entry each week with the sheet gid
     const scorecardGids = {
       1: '1600606220',
       // 2: 'GID_FOR_WEEK_2',  ← add each week
