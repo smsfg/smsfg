@@ -588,7 +588,7 @@ const config = {
 const SHEET_ID = '1otwuWsdy5gTF75nH4uk1riZC1orm1py-zKqCcoV0TiA';
 
 function csvUrl(gid) {
-  return `https://docs.google.com/spreadsheets/d/${SHEET_ID}/export?format=csv&gid=${gid}`;
+  return `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&gid=${gid}`;
 }
 
 function parseCSV(text) {
