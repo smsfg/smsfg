@@ -433,7 +433,7 @@
 
     <div class="notes-card">
       <div class="notes-label">📋 Notes — Week 4</div>
-      <p>Great turnout this week despite the weather. Reminder: money from weeks 1–3 will be collected at the start of Week 5. Season standings are now live — you need 3 rounds to appear. Players with fewer than 6 rounds are marked <em>incomplete</em>. Contact Scott with any scoring questions.</p>
+      <p>Great turnout this week despite the weather. Reminder: money from weeks 1–3 will be collected at the start of Week 5. Season standings are now live — you need 3 rounds to appear. Players with fewer than 6 rounds are marked <em>incomplete</em>. Contact Mike with any scoring questions.</p>
     </div>
 
     <div class="section-heading">
@@ -898,9 +898,6 @@ async function init() {
     const archiveText = await archiveRes.text();
     const archiveRows = parseCSV(archiveText);
     const archiveData = archiveRows.filter(r => r['Player']).map(parseArchiveRow);
-    console.log('Raw first row keys:', JSON.stringify(Object.keys(archiveRows[0])));
-    console.log('Raw first row:', JSON.stringify(archiveRows[0]));
-    console.log('Archive data after map:', archiveData.length, 'first:', JSON.stringify(archiveData[0]));
     globalArchiveData = archiveData;
 
     // Find all unique week numbers from archive to know which scorecard sheets to fetch
