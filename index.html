@@ -623,7 +623,7 @@ function parseArchiveRow(row) {
     skins:     parseInt(row['Skins']) || 0,
     ctpF:      parseInt(row['CTP Front']) || 0,
     ctpB:      parseInt(row['CTP Back']) || 0,
-    cash:      parseFloat(row['Cash Won']) || 0,
+    cash:      parseFloat((row['Cash Won'] || '0').replace(/[$,\s]/g,'')) || 0,
     team:      row['Team'] || '',
   };
 }
