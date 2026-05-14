@@ -433,7 +433,7 @@
 
     <div class="section-heading">
       <h2>Season Standings</h2>
-      <span>Regulars only · Best 5 of weeks 2–6</span>
+      <span>Regulars only · Sum of 2nd–6th best Stableford scores</span>
     </div>
 
     <div class="stat-row">
@@ -468,7 +468,7 @@
         </tbody>
       </table>
     </div>
-    <p style="font-size:0.78rem; color:var(--text-muted); margin-top:0.75rem;">⚠ <em>Incomplete</em> = fewer than 6 rounds played. Season points: sum of 2nd–6th best Stableford scores. NS = fewer than 3 rounds.</p>
+    <p style="font-size:0.78rem; color:var(--text-muted); margin-top:0.75rem;">⚠ <em>Incomplete</em> = fewer than 6 rounds played. Season points: sum of 2nd–6th best Stableford scores across all weeks. NS = fewer than 3 rounds.</p>
   </div>
 
   <!-- ══════════════════ WEEKLY RESULTS PAGE ══════════════════ -->
@@ -619,7 +619,7 @@ function parseCSV(text) {
 
 function parseArchiveRow(row) {
   return {
-    week:      parseInt(row['Week #']) || 0,
+    week:      parseInt(row['Week #'].replace(/\D/g,'')) || 0,
     date:      row['Date'] || '',
     course:    row['Course'] || '',
     player:    row['Player'] || '',
@@ -697,7 +697,8 @@ async function init() {
     const archiveText = await archiveRes.text();
     const archiveRows = parseCSV(archiveText);
     const archiveData = archiveRows.filter(r => r['Player']).map(parseArchiveRow);
-    console.log('Archive rows parsed:', archiveRows.length, 'first row:', JSON.stringify(archiveRows[0]));
+    console.log('Raw first row keys:', JSON.stringify(Object.keys(archiveRows[0])));
+    console.log('Raw first row:', JSON.stringify(archiveRows[0]));
     console.log('Archive data after map:', archiveData.length, 'first:', JSON.stringify(archiveData[0]));
     globalArchiveData = archiveData;
 
