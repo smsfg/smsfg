@@ -568,20 +568,20 @@ const config = {
 
   // Next Week info — update when available, set available: false to show "TBD"
   nextWeek: {
-	available: true,
-	weekNum: 2,
-	date: '5/19/2026',
-	course: 'Spring Meadow Golf Club',
-	tees: 'White',
-	ctpHoles: [6, 13],
-	foursomes: [
-		{ teeTime: '1:00 PM', hole: 1, players: ['Kevin Riley', 'Mike Graef', 'Dave Shaw', 'Brendan O\'Donnell'] },
-		{ teeTime: '1:10 PM', hole: 1, players: ['Paul Keenan', 'Bret Drew', 'Tim Gikas', 'Scott Beliveau'] },
-		{ teeTime: '1:20 PM', hole: 1, players: ['Chris Jerome', 'Paul Tworog', 'Don Boutin', 'Matt Gilligan'] },
-		{ teeTime: '1:30 PM', hole: 1, players: ['John Seubert', 'John Murphy', 'Rick Heenan', 'Craig Skeffington'] },
-		{ teeTime: '1:40 PM', hole: 1, players: ['Russ Scudder', 'Tim Fitzgerald', 'Scott Wiley', 'Ron Gagnon'] },
-	]
-	}
+    available: true,
+    weekNum: 2,
+    date: '5/19/2026',
+    course: 'Spring Meadow Golf Club',
+    tees: 'White',
+    ctpHoles: [6, 13],
+    foursomes: [
+      { teeTime: '1:00 PM', hole: 1, players: ['Kevin Riley', 'Mike Graef', 'Dave Shaw', 'Brendan O\'Donnell'] },
+      { teeTime: '1:10 PM', hole: 1, players: ['Paul Keenan', 'Bret Drew', 'Tim Gikas', 'Scott Beliveau'] },
+      { teeTime: '1:20 PM', hole: 1, players: ['Chris Jerome', 'Paul Tworog', 'Don Boutin', 'Matt Gilligan'] },
+      { teeTime: '1:30 PM', hole: 1, players: ['John Seubert', 'John Murphy', 'Rick Heenan', 'Craig Skeffington'] },
+      { teeTime: '1:40 PM', hole: 1, players: ['Russ Scudder', 'Tim Fitzgerald', 'Scott Wiley', 'Ron Gagnon'] },
+    ]
+  }
 };
 
 // ══════════════════════════════════════════════
@@ -646,6 +646,8 @@ function formatCash(val) {
   if (val < 0) return `($${Math.abs(val).toFixed(2)})`;
   return `+$${val.toFixed(2)}`;
 }
+
+function parseCSVRaw(text) {
   return text.trim().split('\n').map(line => {
     const vals = [];
     let cur = '', inQ = false;
