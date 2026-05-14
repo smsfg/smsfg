@@ -1084,12 +1084,12 @@ function sortTable(tableId, col, btn) {
         const bVal = (parseInt(b.cells[6]?.textContent.trim()) || 0) + (parseInt(b.cells[7]?.textContent.trim()) || 0);
         return bVal - aVal;
       }
-      const aVal = a.cells[col]?.textContent.replace(/[$+,]/g,'').trim() || '';
-      const bVal = b.cells[col]?.textContent.replace(/[$+,]/g,'').trim() || '';
-      const aNum = parseFloat(aVal);
-      const bNum = parseFloat(bVal);
+      const aRaw = a.cells[col]?.textContent.trim() || '';
+      const bRaw = b.cells[col]?.textContent.trim() || '';
+      const aNum = aRaw.startsWith('(') ? -parseFloat(aRaw.replace(/[($,)]/g,'')) : parseFloat(aRaw.replace(/[$+,]/g,''));
+      const bNum = bRaw.startsWith('(') ? -parseFloat(bRaw.replace(/[($,)]/g,'')) : parseFloat(bRaw.replace(/[$+,]/g,''));
       if (!isNaN(aNum) && !isNaN(bNum)) return bNum - aNum;
-      return aVal.localeCompare(bVal);  // text: A→Z
+      return aRaw.localeCompare(bRaw);  // text: A→Z
     });
     rows.forEach(r => tbody.appendChild(r));
   }
