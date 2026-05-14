@@ -564,22 +564,21 @@ const config = {
 
   // Commissioner's Notes — update this each week
   notesWeek: 1,
-  notes: `Welcome to the 2026 SMSFG season! Season standings are now live — you need 3 rounds to appear. Players with fewer than 6 rounds are marked <em>incomplete</em>. Contact Scott with any scoring questions.`,
+  notes: `Welcome to the 2026 SMSFG season! Season standings are now live — you need 3 rounds to appear. Players with fewer than 6 rounds are marked <em>incomplete</em>. Contact Mike with any scoring questions.`,
 
   // Next Week info — update when available, set available: false to show "TBD"
   nextWeek: {
-    available: true,
-    weekNum: 2,
-    date: '5/19/2026',
-    course: 'Spring Meadow Golf Club',
+    available: false,
+    weekNum: 5,
+    date: '',
+    course: '',
+    tees: '',
+    ctpHoles: [],
     foursomes: []
     // When available, foursomes format:
     // foursomes: [
-    //   { teeTime: '1:00 PM', hole: 1, players: ['Kevin Riley', 'Mike Graef', 'Dave Shaw', 'Brendan O"Donnell'] },
-    //   { teeTime: '1:10 PM', hole: 1, players: ['Paul Keenan', 'Bret Drew', 'Tim Gikas', 'Scott Beliveau'] },
-	//   { teeTime: '1:20 PM', hole: 1, players: ['Chris Jerome', 'Paul Tworog', 'Don Boutin', 'Matt Gilligan'] },
-    //   { teeTime: '1:30 PM', hole: 1, players: ['John Seubert', 'John Murphy', 'Rick Heenan', 'Craig Skeffington'] },
-    //   { teeTime: '1:40 PM', hole: 1, players: ['Russ Scudder', 'Tim Fitzgerald', 'Scott Wiley', 'Ron Gagnon'] },
+    //   { teeTime: '8:00 AM', hole: 1, players: ['John Murphy', 'Scott Wiley', 'Kevin Riley', 'Jack McGarry'] },
+    //   { teeTime: '8:10 AM', hole: 1, players: ['Scott Beliveau', 'Dave Shaw', 'Tim Fitzgerald', 'Ron Gagnon'] },
     // ]
   }
 };
@@ -1129,6 +1128,8 @@ function renderNextWeek() {
     <div class="scorecard-meta" style="margin-bottom:1.5rem;">
       <div><div class="label">Date</div><div class="val">${nw.date}</div></div>
       <div><div class="label">Course</div><div class="val">${nw.course}</div></div>
+      <div><div class="label">Tees</div><div class="val">${nw.tees || '—'}</div></div>
+      <div><div class="label">CTP Holes</div><div class="val">${nw.ctpHoles && nw.ctpHoles.length ? nw.ctpHoles.join(' & ') : '—'}</div></div>
       <div><div class="label">Groups</div><div class="val">${nw.foursomes.length}</div></div>
     </div>
     <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(260px,1fr)); gap:1rem;">
