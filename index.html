@@ -380,9 +380,9 @@
     border-radius: 0 6px 6px 0;
   }
 
-  .skin-winner { background: rgba(45,90,52,0.25); font-weight: 700; border-radius: 3px; }
-  .skin-close  { background: rgba(45,90,52,0.10); }
-  .skin-tied   { background: rgba(201,168,76,0.12); color: var(--text-muted); }
+  .skin-winner { background: rgba(30,100,45,0.45); font-weight: 700; border-radius: 3px; color: #0d3d1a; }
+  .skin-close  { background: rgba(45,90,52,0.15); font-weight: 500; }
+  .skin-tied   { background: rgba(201,168,76,0.08); }
 
   /* ── FOOTER ── */
   footer {
@@ -762,11 +762,11 @@ function parseSkinsSheet(lines, weekNum) {
       tiedCount = vals;
     }
     const sk = parseInt(row[21]);
-    const pay = row[22]?.replace(/[$,\s]/g,'');
-    if (sk && !totalSkins) totalSkins = sk;
-    if (pay && !perSkin) perSkin = parseFloat(pay) || 0;
     const pot = row[2]?.replace(/[$,\s]/g,'');
+    if (sk && !totalSkins) totalSkins = sk;
     if (pot && !skinPot) skinPot = parseFloat(pot) || 0;
+  }
+  perSkin = totalSkins > 0 ? skinPot / totalSkins : 0;
   }
 
   // Calculate hole winners from scores
