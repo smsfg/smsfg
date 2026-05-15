@@ -677,6 +677,25 @@ function formatCash(val) {
   return `+$${val.toFixed(2)}`;
 }
 
+function parseCSVGeneric(text) {
+  const lines = text.trim().split('\n');
+  if (lines.length < 2) return [];
+  const headers = lines[0].split(',').map(h => h.replace(/"/g,'').trim());
+  return lines.slice(1).map(line => {
+    const vals = [];
+    let cur = '', inQ = false;
+    for (const ch of line) {
+      if (ch === '"') inQ = !inQ;
+      else if (ch === ',' && !inQ) { vals.push(cur.trim()); cur = ''; }
+      else cur += ch;
+    }
+    vals.push(cur.trim());
+    const obj = {};
+    headers.forEach((h, i) => obj[h] = (vals[i] || '').replace(/"/g,'').trim());
+    return obj;
+  }).filter(r => Object.values(r).some(v => v.length > 0));
+}
+
 function parseCSVRaw(text) {
   return text.trim().split('\n').map(line => {
     const vals = [];
@@ -1011,7 +1030,7 @@ async function init() {
     // Fetch schedule
     const scheduleRes = await fetch(csvUrl('255231965'));
     const scheduleText = await scheduleRes.text();
-    const scheduleRows = parseCSV(scheduleText);
+    const scheduleRows = parseCSVGeneric(scheduleText);
     renderSchedule(scheduleRows);
 
     // Render everything
