@@ -419,6 +419,7 @@
       <button onclick="showPage('scorecard', this)">Scorecards</button>
       <button onclick="showPage('skins', this)">Skins</button>
       <button onclick="showPage('money', this)">Money</button>
+      <button onclick="showPage('schedule', this)">Schedule</button>
       <button onclick="showPage('nextweek', this)">Next Round</button>
     </nav>
   </div>
@@ -551,6 +552,19 @@
     <div id="skins-content"></div>
   </div>
 
+  <!-- ══════════════════ SCHEDULE PAGE ══════════════════ -->
+  <div id="page-schedule" class="page">
+
+    <div class="section-heading">
+      <h2>2026 Schedule</h2>
+      <span>All rounds · Dates, courses &amp; fees</span>
+    </div>
+
+    <div id="schedule-content">
+      <p style="color:var(--text-muted);font-size:0.9rem;">Loading schedule...</p>
+    </div>
+  </div>
+
   <!-- ══════════════════ NEXT WEEK PAGE ══════════════════ -->
   <div id="page-nextweek" class="page">
 
@@ -581,7 +595,7 @@ const config = {
 
   // Notes — update this each week
   notesWeek: 1,
-  notes: `Welcome to the 2026 SMSFG season! Weekly information is now live.  Season standings will start showing when you have 3 rounds...players with fewer than 6 rounds are marked <em>incomplete</em>. Contact Mike with any scoring questions.`,
+  notes: `Welcome to the 2026 SMSFG season! Season standings are now live — you need 3 rounds to appear. Players with fewer than 6 rounds are marked <em>incomplete</em>. Contact Mike with any scoring questions.`,
 
   nextWeek: {
     available: true,
@@ -884,6 +898,63 @@ function renderSkins(weekNum, weeklySkins) {
 }
 
 // ══════════════════════════════════════════════
+// SCHEDULE
+// ══════════════════════════════════════════════
+
+function renderSchedule(rows) {
+  const div = document.getElementById('schedule-content');
+  if (!rows || !rows.length) {
+    div.innerHTML = '<p style="color:var(--text-muted);">No schedule data available.</p>';
+    return;
+  }
+
+  // Determine which weeks have been played based on archive data
+  const playedWeeks = new Set(globalArchiveData.map(r => r.week));
+
+  div.innerHTML = `
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th style="width:36px;" class="num">Wk</th>
+            <th>Date</th>
+            <th>Course</th>
+            <th class="num">Tee Times</th>
+            <th class="num">First Tee</th>
+            <th class="num">Fees w/Cart</th>
+            <th class="num">Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${rows.map((row, i) => {
+            const weekNum = i + 1;
+            const played = playedWeeks.has(weekNum);
+            const isNext = !played && weekNum === Math.min(...[...Array(rows.length).keys()].map(j => j+1).filter(w => !playedWeeks.has(w)));
+            const statusBadge = played
+              ? `<span class="badge" style="background:rgba(45,90,52,0.15);color:var(--green-mid);">Complete</span>`
+              : isNext
+              ? `<span class="badge badge-inc">Next</span>`
+              : `<span class="badge badge-ns">Upcoming</span>`;
+            return `<tr style="${isNext ? 'background:rgba(201,168,76,0.06);' : ''}${played ? 'opacity:0.65;' : ''}">
+              <td class="num" style="font-family:'Playfair Display',serif;font-weight:700;color:var(--green-dark);">${weekNum}</td>
+              <td style="font-weight:500;">${row['Day / Date'] || ''}</td>
+              <td>${row['Course Location'] || ''}</td>
+              <td class="num">${row['Number of Tee Times'] || ''}</td>
+              <td class="num">${row['First Tee Time'] || ''}</td>
+              <td class="num">${row['Fees w/Cart'] || ''}</td>
+              <td class="num">${statusBadge}</td>
+            </tr>`;
+          }).join('')}
+        </tbody>
+      </table>
+    </div>
+    <p style="font-size:0.78rem;color:var(--text-muted);margin-top:0.75rem;">
+      Completed rounds are dimmed. The next upcoming round is highlighted.
+    </p>
+  `;
+}
+
+// ══════════════════════════════════════════════
 // INIT — fetch live data then render
 // ══════════════════════════════════════════════
 
@@ -936,6 +1007,12 @@ async function init() {
         if (sk) weeklySkins[weekNum] = sk;
       } catch(e) { console.warn(`Could not load skins week ${weekNum}`, e); }
     }));
+
+    // Fetch schedule
+    const scheduleRes = await fetch(csvUrl('255231965'));
+    const scheduleText = await scheduleRes.text();
+    const scheduleRows = parseCSV(scheduleText);
+    renderSchedule(scheduleRows);
 
     // Render everything
     renderStandings(0, archiveData);
