@@ -950,7 +950,7 @@ function renderSchedule(rows) {
             const played = playedWeeks.has(weekNum);
             const isNext = !played && weekNum === Math.min(...[...Array(rows.length).keys()].map(j => j+1).filter(w => !playedWeeks.has(w)));
             const statusBadge = played
-              ? `<span class="badge" style="background:rgba(45,90,52,0.15);color:var(--green-mid);">Complete</span>`
+              ? `<span class="badge" style="background:rgba(45,90,52,0.15);color:var(--green-mid);cursor:pointer;text-decoration:underline;" onclick="showPage('weekly', [...document.querySelectorAll('nav button')].find(b => b.textContent==='Weekly Results')); setTimeout(()=>{const btn=[...document.querySelectorAll('#weekly-week-selector .week-btn')].find(b=>b.textContent==='Week ${weekNum}');if(btn)btn.click();},100);">Complete ›</span>`
               : isNext
               ? `<span class="badge badge-inc" onclick="showPage('nextweek', [...document.querySelectorAll('nav button')].find(b => b.textContent==='Next Round'))" style="cursor:pointer;text-decoration:underline;">Next ›</span>`
               : `<span class="badge badge-ns">Upcoming</span>`;
