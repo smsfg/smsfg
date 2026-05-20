@@ -589,21 +589,21 @@
 
 const config = {
   season: '2026',
-  currentWeek: 1,
+  currentWeek: 2,
   totalWeeks: 15,
-  currentCourse: 'Val Halla Golf Club',
+  currentCourse: 'Spring Meadows Golf Course',
 
   // Notes — update this each week
-  notesWeek: 1,
-  notes: `Welcome to the 2026 SMSFG season! Season standings are now live — you need 3 rounds to appear. Players with fewer than 6 rounds are marked <em>incomplete</em>. Contact Mike with any scoring questions.`,
+  notesWeek: 2,
+  notes: `Welcome to the 2026 SMSFG season! Contact Mike with any scoring questions.`,
 
   nextWeek: {
-    available: true,
-    weekNum: 2,
-    date: '5/19/2026',
-    course: 'Spring Meadow Golf Club',
+    available: false,
+    weekNum: 3,
+    date: '6/02/2026',
+    course: 'Toddy Brook GC',
     tees: 'White',
-    ctpHoles: [6, 13],
+    ctpHoles: [4, 18],
     foursomes: [
       { teeTime: '1:00 PM', hole: 1, players: ['Kevin Riley', 'Mike Graef', 'Dave Shaw', 'Brendan O\'Donnell'] },
       { teeTime: '1:10 PM', hole: 1, players: ['Paul Keenan', 'Bret Drew', 'Tim Gikas', 'Scott Beliveau'] },
@@ -996,6 +996,7 @@ async function init() {
     // Fetch scorecard sheets — add a new entry each week with the sheet gid
     const scorecardGids = {
       1: '1583687842',
+	  2: '1984269762',
       // 2: 'GID_FOR_WEEK_2',  ← add each week
     };
 
@@ -1013,6 +1014,7 @@ async function init() {
     // Fetch skins sheets — add a new entry each week with the sheet gid
     const skinsGids = {
       1: '616004003',
+	  2: '868396925',
       // 2: 'GID_FOR_SKINS_WEEK_2',  ← add each week
     };
 
