@@ -589,22 +589,22 @@
 
 const config = {
   season: '2026',
-  currentWeek: 2,
+  currentWeek: 3,
   totalWeeks: 15,
-  currentCourse: 'Spring Meadows Golf Course',
+  currentCourse: 'Toddy Brook Golf Club',
 
   // Notes — update this each week
   notesWeek: 2,
-  notes: `<p>Week 2 is in the books! From 50° at Val Halla to 90° at Spring Meadows — our average playing temperature is a perfect 70°. Well done to everyone who survived.</p>
+  notes: `<p>Week 3 is done!</p>
 	<p>A note on the standings: subs are visible on this page so they can track their average scores and cash, but they are not part of the season points competition. Once regulars accumulate 3+ rounds and Season Points scores appear, subs will naturally filter to the bottom when sorting by Season Points.</p>
 	<p>Contact Mike with any scoring questions or website issues.</p>`,
   nextWeek: {
-    available: true,
-    weekNum: 3,
-    date: '6/02/2026',
-    course: 'Toddy Brook GC',
+    available: false,
+    weekNum: 4,
+    date: '6/16/2026',
+    course: 'Woodlands CC',
     tees: 'White',
-    ctpHoles: [4, 18],
+    ctpHoles: [5, 13],
     foursomes: [
       { teeTime: '11:03 AM', hole: 1, players: ['Kevin Riley', 'John Seubert', 'Tim Fitzgerald', 'Scott Wiley'] },
       { teeTime: '11:12 AM', hole: 1, players: ['Mike Graef', 'Rick Heenan', 'Tim Gikas', 'Jack McGarry'] },
@@ -998,6 +998,7 @@ async function init() {
     const scorecardGids = {
       1: '1583687842',
 	  2: '1984269762',
+	  3: '1119256282',
       // 2: 'GID_FOR_WEEK_2',  ← add each week
     };
 
@@ -1016,6 +1017,7 @@ async function init() {
     const skinsGids = {
       1: '616004003',
 	  2: '868396925',
+	  3: '337257279',
       // 2: 'GID_FOR_SKINS_WEEK_2',  ← add each week
     };
 
