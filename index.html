@@ -395,10 +395,63 @@
   }
 
   @media (max-width: 680px) {
-    .header-inner { flex-wrap: wrap; }
-    nav { flex-wrap: wrap; }
-    nav button { font-size: 0.78rem; padding: 0.4rem 0.65rem; }
-    .site-title h1 { font-size: 1.2rem; }
+    .header-inner { flex-wrap: wrap; gap: 0.75rem; padding: 0.6rem 1rem; }
+    .logo-wrap img { height: 52px; width: 52px; }
+    .site-title h1 { font-size: 1.1rem; }
+    .site-title p { font-size: 0.7rem; }
+    nav { width: 100%; overflow-x: auto; flex-wrap: nowrap; padding-bottom: 2px; -webkit-overflow-scrolling: touch; }
+    nav button { font-size: 0.72rem; padding: 0.35rem 0.55rem; white-space: nowrap; flex-shrink: 0; }
+    main { padding: 1rem; }
+    .section-heading h2 { font-size: 1.2rem; }
+    .stat-row { gap: 0.5rem; }
+    .stat-pill { min-width: 100px; padding: 0.6rem 0.9rem; }
+    .stat-pill .value { font-size: 1.1rem; }
+    .sort-controls { gap: 0.4rem; }
+    .sort-btn { font-size: 0.75rem; padding: 0.3rem 0.6rem; }
+    .scorecard-meta { gap: 1rem; }
+    .week-selector { gap: 0.4rem; }
+    .week-btn { font-size: 0.78rem; padding: 0.35rem 0.7rem; }
+    .notes-card { padding: 1rem; }
+    .notes-card p { font-size: 0.88rem; }
+
+    /* All tables scrollable on mobile */
+    .table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; border-radius: 8px; }
+    .table-wrap table { min-width: 480px; }
+
+    /* Freeze player name column */
+    .table-wrap th:first-child,
+    .table-wrap td:first-child {
+      position: sticky;
+      left: 0;
+      background: var(--white);
+      z-index: 2;
+      box-shadow: 2px 0 4px rgba(0,0,0,0.06);
+    }
+    .table-wrap thead th:first-child {
+      background: var(--green-dark);
+      z-index: 3;
+    }
+    tbody tr.sub-row td:first-child { background: rgba(26,61,31,0.03); }
+    tbody tr:hover td:first-child { background: rgba(201,168,76,0.06); }
+    .par-row td:first-child { background: rgba(26,61,31,0.06); }
+    .si-row td:first-child { background: rgba(201,168,76,0.08); }
+
+    /* Scorecard/skins wrap already scrollable, ensure frozen col works */
+    .scorecard-wrap { border-radius: 8px; }
+    .scorecard-wrap th:first-child,
+    .scorecard-wrap td:first-child {
+      position: sticky;
+      left: 0;
+      background: var(--white);
+      z-index: 2;
+      box-shadow: 2px 0 4px rgba(0,0,0,0.06);
+    }
+    .scorecard-wrap thead th:first-child { background: var(--green-dark); z-index: 3; }
+    .par-row td.player-name { background: rgba(26,61,31,0.06); }
+    .si-row td.player-name { background: rgba(201,168,76,0.08); }
+
+    /* Next round cards stack on mobile */
+    #nextweek-content > div[style*="grid"] { grid-template-columns: 1fr !important; }
   }
 </style>
 </head>
@@ -821,7 +874,7 @@ function parseSkinsSheet(lines, weekNum) {
 }
 
 function renderSkinsSelector(weeklySkins) {
-  const weeks = Object.keys(weeklySkins).map(Number).sort((a,b)=>a-b);
+  const weeks = Object.keys(weeklySkins).map(Number).sort((a,b)=>b-a); // newest first
   const sel = document.getElementById('skins-week-selector');
   sel.innerHTML = '';
   if (!weeks.length) {
@@ -840,7 +893,7 @@ function renderSkinsSelector(weeklySkins) {
     };
     sel.appendChild(btn);
   });
-  if (weeks.length) renderSkins(weeks[0], weeklySkins);
+  if (weeks.length) renderSkins(weeks[0], weeklySkins); // default to latest
 }
 
 function renderSkins(weekNum, weeklySkins) {
@@ -1162,7 +1215,7 @@ function renderStandings(sortCol = 0, archiveData) {
 // ══════════════════════════════════════════════
 
 function renderWeeklySelector(archiveData) {
-  const weeks = [...new Set(archiveData.map(r => r.week))].sort((a,b)=>a-b);
+  const weeks = [...new Set(archiveData.map(r => r.week))].sort((a,b)=>b-a); // newest first
   const sel = document.getElementById('weekly-week-selector');
   sel.innerHTML = '';
   weeks.forEach((w, i) => {
@@ -1176,7 +1229,7 @@ function renderWeeklySelector(archiveData) {
     };
     sel.appendChild(btn);
   });
-  if (weeks.length) renderWeeklyResults(weeks[0], archiveData);
+  if (weeks.length) renderWeeklyResults(weeks[0], archiveData); // default to latest
 }
 
 function renderWeeklyResults(week, archiveData) {
@@ -1247,7 +1300,7 @@ function renderWeeklyResults(week, archiveData) {
 // ══════════════════════════════════════════════
 
 function renderScorecardSelector(weeklyScorecard) {
-  const weeks = Object.keys(weeklyScorecard).map(Number).sort((a,b)=>a-b);
+  const weeks = Object.keys(weeklyScorecard).map(Number).sort((a,b)=>b-a); // newest first
   const sel = document.getElementById('scorecard-week-selector');
   sel.innerHTML = '';
   weeks.forEach((w, i) => {
@@ -1261,7 +1314,7 @@ function renderScorecardSelector(weeklyScorecard) {
     };
     sel.appendChild(btn);
   });
-  if (weeks.length) renderScorecard(weeks[0], weeklyScorecard);
+  if (weeks.length) renderScorecard(weeks[0], weeklyScorecard); // default to latest
 }
 
 function renderScorecard(week, weeklyScorecard) {
@@ -1417,9 +1470,25 @@ function renderNextWeek() {
   const div = document.getElementById('nextweek-content');
   const sub = document.getElementById('nextweek-subtitle');
 
+  const hasInfo = nw.date || nw.course || nw.tees || (nw.ctpHoles && nw.ctpHoles.length);
+
+  sub.textContent = nw.available
+    ? `Week ${nw.weekNum} · ${nw.date} · ${nw.course}`
+    : hasInfo ? `Week ${nw.weekNum} · ${nw.date}` : 'Coming soon';
+
+  // Build the meta info block if any info is available
+  const metaBlock = hasInfo ? `
+    <div class="scorecard-meta" style="margin-bottom:1.5rem;">
+      ${nw.date    ? `<div><div class="label">Date</div><div class="val">${nw.date}</div></div>` : ''}
+      ${nw.course  ? `<div><div class="label">Course</div><div class="val">${nw.course}</div></div>` : ''}
+      ${nw.tees    ? `<div><div class="label">Tees</div><div class="val">${nw.tees}</div></div>` : ''}
+      ${nw.ctpHoles && nw.ctpHoles.length ? `<div><div class="label">CTP Holes</div><div class="val">${nw.ctpHoles.join(' & ')}</div></div>` : ''}
+      ${nw.available ? `<div><div class="label">Groups</div><div class="val">${nw.foursomes.length}</div></div>` : ''}
+    </div>` : '';
+
   if (!nw.available) {
-    sub.textContent = 'Coming soon';
     div.innerHTML = `
+      ${metaBlock}
       <div class="notes-card" style="text-align:center; padding: 2.5rem;">
         <div class="notes-label" style="margin-bottom:0.75rem;">Week ${nw.weekNum} Foursomes</div>
         <p style="font-size:1.1rem; opacity:0.8;">Tee times and pairings will be posted here once available.</p>
@@ -1428,15 +1497,8 @@ function renderNextWeek() {
     return;
   }
 
-  sub.textContent = `Week ${nw.weekNum} · ${nw.date} · ${nw.course}`;
   div.innerHTML = `
-    <div class="scorecard-meta" style="margin-bottom:1.5rem;">
-      <div><div class="label">Date</div><div class="val">${nw.date}</div></div>
-      <div><div class="label">Course</div><div class="val">${nw.course}</div></div>
-      <div><div class="label">Tees</div><div class="val">${nw.tees || '—'}</div></div>
-      <div><div class="label">CTP Holes</div><div class="val">${nw.ctpHoles && nw.ctpHoles.length ? nw.ctpHoles.join(' & ') : '—'}</div></div>
-      <div><div class="label">Groups</div><div class="val">${nw.foursomes.length}</div></div>
-    </div>
+    ${metaBlock}
     <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(260px,1fr)); gap:1rem;">
       ${nw.foursomes.map((g, i) => `
         <div class="table-wrap" style="padding:1rem 1.25rem;">
