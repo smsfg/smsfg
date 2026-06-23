@@ -642,24 +642,24 @@
 
 const config = {
   season: '2026',
-  currentWeek: 4,
+  currentWeek: 5,
   totalWeeks: 15,
-  currentCourse: 'Woodlands CC',
+  currentCourse: 'Nonesuch River GC',
 
   // Notes — update this each week
   notesWeek: 4,
-  notes: `<p>Week 4 is complete!</p>
-			<p>Scoring update: </p>
-			<p>Reviewing results the past couple weeks, we discovered a scoring issue. Our modified Stableford method is built around a baseline of 36 points (a scratch golfer making all pars). We only have positive points — no negatives for scores worse than bogey — which helps speed up play and keeps the math simple. The problem: someone starting with 30 points from their course handicap is already at -6 before playing a hole — and 9 of 20 players at Woodlands this week scored worse than -6 after playing their round. As your handicap gets higher, you get more and more of a head start, and this makes perfect sense....at some point though, it doesn't reflect actual play (or even require it!). So we did some fancy math and came up with a method that scales things in a way which we think is equitable: course handicaps over 20 now count at half value above that threshold (a course handicap of 30 gives 25 Stableford points, a course handicap of 40 gives 30,  etc.) with starting Stableford points capped at a max of 30.  This change only affects Stableford scoring - skins still use full course handicaps at 75%, unchanged.</p>
-			<p>This is our first season, and we knew there'd be some bumps along the way as we figure things out — appreciate everyone's patience as we get the system dialed in!</p>
+  notes: `<p>Week 5 is complete!</p>
+			<p></p>
+			<p></p>
+			<p></p>
 			<p>Contact Mike with any scoring questions or website issues.</p>`,
   nextWeek: {
-    available: true,
-    weekNum: 5,
-    date: '6/23/2026',
-    course: 'Nonesuch River GC',
-    tees: 'White',
-    ctpHoles: [2, 15],
+    available: false,
+    weekNum: 6,
+    date: '7/7/2026',
+    course: 'Biddeford-Saco CC',
+    tees: 'Gold',
+    ctpHoles: [8, 15],
     foursomes: [
       { teeTime: '11:06 AM', hole: 1, players: ['Mike Graef', 'Drew King', 'Don Boutin', 'John Seubert'] },
       { teeTime: '11:15 AM', hole: 1, players: ['Kevin Riley', 'Ron Gagnon', 'Rick Heenan', 'John Murphy'] },
@@ -1055,6 +1055,7 @@ async function init() {
 	  2: '1984269762',
 	  3: '1119256282',
 	  4: '1686322950',
+	  5: '856336362',
       // 2: 'GID_FOR_WEEK_2',  ← add each week
     };
 
@@ -1075,6 +1076,7 @@ async function init() {
 	  2: '868396925',
 	  3: '337257279',
 	  4: '1066218039',
+	  5: '706573510',
       // 2: 'GID_FOR_SKINS_WEEK_2',  ← add each week
     };
 
