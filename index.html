@@ -317,7 +317,30 @@
     gap: 0.5rem;
     flex-wrap: wrap;
     margin-bottom: 1.5rem;
+    align-items: center;
   }
+
+  .week-select {
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 0.45rem 2rem 0.45rem 1rem;
+    font-family: 'Source Sans 3', sans-serif;
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: var(--text-mid);
+    cursor: pointer;
+    appearance: none;
+    -webkit-appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%236b6b6b' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 0.75rem center;
+    box-shadow: var(--shadow);
+    transition: border-color 0.15s;
+    min-width: 130px;
+  }
+
+  .week-select:focus { outline: none; border-color: var(--gold); }
 
   .week-btn {
     background: var(--white);
@@ -410,7 +433,7 @@
     .sort-btn { font-size: 0.75rem; padding: 0.3rem 0.6rem; }
     .scorecard-meta { gap: 1rem; }
     .week-selector { gap: 0.4rem; }
-    .week-btn { font-size: 0.78rem; padding: 0.35rem 0.7rem; }
+    .week-select { font-size: 0.85rem; min-width: 110px; }
     .notes-card { padding: 1rem; }
     .notes-card p { font-size: 0.88rem; }
 
@@ -649,7 +672,7 @@ const config = {
   // Notes — update this each week
   notesWeek: 6,
   notes: `<p>Week 6 is complete!</p>
-			<p>Great week at Biddeford-Saco.  Course was in great condition, as always, and we were done and drinking before the rain came!</p>
+			<p>Great week at Biddeford-Saco.  Course was in great condition, as always, and we were dry and drinking before the rain came!</p>
 			<p></p>
 			<p></p>
 			<p>Contact Mike with any scoring questions or website issues.</p>`,
@@ -876,7 +899,7 @@ function parseSkinsSheet(lines, weekNum) {
 }
 
 function renderSkinsSelector(weeklySkins) {
-  const weeks = Object.keys(weeklySkins).map(Number).sort((a,b)=>b-a); // newest first
+  const weeks = Object.keys(weeklySkins).map(Number).sort((a,b)=>b-a);
   const sel = document.getElementById('skins-week-selector');
   sel.innerHTML = '';
   if (!weeks.length) {
@@ -884,18 +907,17 @@ function renderSkinsSelector(weeklySkins) {
       '<p style="color:var(--text-muted);font-size:0.9rem;">No skins data available yet.</p>';
     return;
   }
-  weeks.forEach((w, i) => {
-    const btn = document.createElement('button');
-    btn.className = 'week-btn' + (i === 0 ? ' active' : '');
-    btn.textContent = `Week ${w}`;
-    btn.onclick = () => {
-      sel.querySelectorAll('.week-btn').forEach(b => b.classList.remove('active'));
-      btn.classList.add('active');
-      renderSkins(w, weeklySkins);
-    };
-    sel.appendChild(btn);
+  const select = document.createElement('select');
+  select.className = 'week-select';
+  weeks.forEach(w => {
+    const opt = document.createElement('option');
+    opt.value = w;
+    opt.textContent = `Week ${w}`;
+    select.appendChild(opt);
   });
-  if (weeks.length) renderSkins(weeks[0], weeklySkins); // default to latest
+  select.onchange = () => renderSkins(parseInt(select.value), weeklySkins);
+  sel.appendChild(select);
+  if (weeks.length) renderSkins(weeks[0], weeklySkins);
 }
 
 function renderSkins(weekNum, weeklySkins) {
@@ -1006,7 +1028,7 @@ function renderSchedule(rows) {
             const played = playedWeeks.has(weekNum);
             const isNext = !played && weekNum === Math.min(...[...Array(rows.length).keys()].map(j => j+1).filter(w => !playedWeeks.has(w)));
             const statusBadge = played
-              ? `<span class="badge" style="background:rgba(45,90,52,0.15);color:var(--green-mid);cursor:pointer;text-decoration:underline;" onclick="showPage('weekly', [...document.querySelectorAll('nav button')].find(b => b.textContent==='Weekly Results')); setTimeout(()=>{const btn=[...document.querySelectorAll('#weekly-week-selector .week-btn')].find(b=>b.textContent==='Week ${weekNum}');if(btn)btn.click();},100);">Complete ›</span>`
+              ? `<span class="badge" style="background:rgba(45,90,52,0.15);color:var(--green-mid);cursor:pointer;text-decoration:underline;" onclick="showPage('weekly', [...document.querySelectorAll('nav button')].find(b => b.textContent==='Weekly Results')); setTimeout(()=>{const sel=document.getElementById('weekly-week-selector').querySelector('select');if(sel){sel.value=${weekNum};sel.dispatchEvent(new Event('change'));}},100);">Complete ›</span>`
               : isNext
               ? `<span class="badge badge-inc" onclick="showPage('nextweek', [...document.querySelectorAll('nav button')].find(b => b.textContent==='Next Round'))" style="cursor:pointer;text-decoration:underline;">Next ›</span>`
               : `<span class="badge badge-ns">Upcoming</span>`;
@@ -1173,49 +1195,61 @@ function computeStandings(archiveData) {
 function renderStandings(sortCol = 0, archiveData) {
   const data = computeStandings(archiveData);
 
-  data.sort((a, b) => {
-    if (sortCol === 0) {
-      if (a.seasonPts === null && b.seasonPts === null) return a.player.localeCompare(b.player);
-      if (a.seasonPts === null) return 1;
-      if (b.seasonPts === null) return -1;
-      return b.seasonPts - a.seasonPts;
-    }
-    if (sortCol === 3) return parseFloat(a.avgGross) - parseFloat(b.avgGross);
-    if (sortCol === 4) return parseFloat(a.avgNet) - parseFloat(b.avgNet);
-    if (sortCol === 5) return b.netCash - a.netCash;
-    return 0;
-  });
-
-  let rank = 1;
   const tbody = document.getElementById('standings-body');
   tbody.innerHTML = '';
-  data.forEach(p => {
-    const isRegular = p.type === 'Regular';
-    const isRanked  = isRegular && p.status !== 'ns';
-    const tr = document.createElement('tr');
-    if (!isRegular) tr.classList.add('sub-row');
 
-    if (isRanked) rank++;
+  if (sortCol === 0) {
+    const complete   = data.filter(p => p.status === 'full').sort((a,b) => b.seasonPts - a.seasonPts);
+    const incomplete = data.filter(p => p.status === 'incomplete').sort((a,b) => b.seasonPts - a.seasonPts);
+    const other      = data.filter(p => p.status === 'ns' || p.type !== 'Regular').sort((a,b) => a.player.localeCompare(b.player));
 
-    let ptsCell = '';
-    if (!isRegular) ptsCell = `<td class="num"><span class="badge badge-sub">Sub</span></td>`;
-    else if (p.status === 'ns') ptsCell = `<td class="num"><span class="badge badge-ns">NS</span></td>`;
-    else if (p.status === 'incomplete') ptsCell = `<td class="num">${p.seasonPts} <span class="badge badge-inc">Inc</span></td>`;
-    else ptsCell = `<td class="num" style="font-weight:600;">${p.seasonPts}</td>`;
+    const addSectionHeader = (label, count) => {
+      if (!count) return;
+      const tr = document.createElement('tr');
+      tr.innerHTML = `<td colspan="7" style="background:var(--green-dark);color:var(--gold-light);font-size:0.7rem;font-weight:600;letter-spacing:0.12em;text-transform:uppercase;padding:0.4rem 0.9rem;">${label}</td>`;
+      tbody.appendChild(tr);
+    };
 
-    const cashClass = p.netCash >= 0 ? 'badge-pos' : 'badge-neg';
+    addSectionHeader('Complete — 6+ Rounds', complete.length);
+    complete.forEach(p => tbody.appendChild(buildStandingsRow(p)));
+    addSectionHeader('Incomplete — Fewer than 6 Rounds', incomplete.length);
+    incomplete.forEach(p => tbody.appendChild(buildStandingsRow(p)));
+    addSectionHeader('Other — Subs & No Score', other.length);
+    other.forEach(p => tbody.appendChild(buildStandingsRow(p)));
 
-    tr.innerHTML = `
-      <td style="font-weight:500;">${p.player}</td>
-      ${ptsCell}
-      <td class="num">${p.rounds}</td>
-      <td class="num">${p.avgGross}</td>
-      <td class="num">${p.avgNet}</td>
-      <td class="num"><span class="${cashClass}">${formatCash(p.netCash)}</span></td>
-      <td><span class="badge ${isRegular ? '' : 'badge-sub'}">${p.type}</span></td>
-    `;
-    tbody.appendChild(tr);
-  });
+  } else {
+    data.sort((a, b) => {
+      if (sortCol === 3) return parseFloat(a.avgGross) - parseFloat(b.avgGross);
+      if (sortCol === 4) return parseFloat(a.avgNet) - parseFloat(b.avgNet);
+      if (sortCol === 5) return b.netCash - a.netCash;
+      return 0;
+    });
+    data.forEach(p => tbody.appendChild(buildStandingsRow(p)));
+  }
+}
+
+function buildStandingsRow(p) {
+  const isRegular = p.type === 'Regular';
+  const tr = document.createElement('tr');
+  if (!isRegular) tr.classList.add('sub-row');
+
+  let ptsCell = '';
+  if (!isRegular) ptsCell = `<td class="num"><span class="badge badge-sub">Sub</span></td>`;
+  else if (p.status === 'ns') ptsCell = `<td class="num"><span class="badge badge-ns">NS</span></td>`;
+  else if (p.status === 'incomplete') ptsCell = `<td class="num">${p.seasonPts} <span class="badge badge-inc">Inc</span></td>`;
+  else ptsCell = `<td class="num" style="font-weight:600;">${p.seasonPts}</td>`;
+
+  const cashClass = p.netCash >= 0 ? 'badge-pos' : 'badge-neg';
+  tr.innerHTML = `
+    <td style="font-weight:500;">${p.player}</td>
+    ${ptsCell}
+    <td class="num">${p.rounds}</td>
+    <td class="num">${p.avgGross}</td>
+    <td class="num">${p.avgNet}</td>
+    <td class="num"><span class="${cashClass}">${formatCash(p.netCash)}</span></td>
+    <td><span class="badge ${isRegular ? '' : 'badge-sub'}">${p.type}</span></td>
+  `;
+  return tr;
 }
 
 // ══════════════════════════════════════════════
@@ -1223,21 +1257,20 @@ function renderStandings(sortCol = 0, archiveData) {
 // ══════════════════════════════════════════════
 
 function renderWeeklySelector(archiveData) {
-  const weeks = [...new Set(archiveData.map(r => r.week))].sort((a,b)=>b-a); // newest first
+  const weeks = [...new Set(archiveData.map(r => r.week))].sort((a,b)=>b-a);
   const sel = document.getElementById('weekly-week-selector');
   sel.innerHTML = '';
-  weeks.forEach((w, i) => {
-    const btn = document.createElement('button');
-    btn.className = 'week-btn' + (i === 0 ? ' active' : '');
-    btn.textContent = `Week ${w}`;
-    btn.onclick = () => {
-      sel.querySelectorAll('.week-btn').forEach(b => b.classList.remove('active'));
-      btn.classList.add('active');
-      renderWeeklyResults(w, archiveData);
-    };
-    sel.appendChild(btn);
+  const select = document.createElement('select');
+  select.className = 'week-select';
+  weeks.forEach(w => {
+    const opt = document.createElement('option');
+    opt.value = w;
+    opt.textContent = `Week ${w}`;
+    select.appendChild(opt);
   });
-  if (weeks.length) renderWeeklyResults(weeks[0], archiveData); // default to latest
+  select.onchange = () => renderWeeklyResults(parseInt(select.value), archiveData);
+  sel.appendChild(select);
+  if (weeks.length) renderWeeklyResults(weeks[0], archiveData);
 }
 
 function renderWeeklyResults(week, archiveData) {
@@ -1257,8 +1290,8 @@ function renderWeeklyResults(week, archiveData) {
       <div><div class="label">Date</div><div class="val">${first.date}</div></div>
       <div><div class="label">Course</div><div class="val">${first.course}</div></div>
       <div><div class="label">Players</div><div class="val">${rows.length}</div></div>
-      <div><div class="label">Low Gross</div><div class="val">${rows.slice().sort((a,b)=>a.gross-b.gross)[0].player.split(' ')[1]} (${rows.slice().sort((a,b)=>a.gross-b.gross)[0].gross})</div></div>
-      <div><div class="label">Low Net</div><div class="val">${rows.slice().sort((a,b)=>a.net-b.net)[0].player.split(' ')[1]} (${rows.slice().sort((a,b)=>a.net-b.net)[0].net})</div></div>
+      <div><div class="label">Low Gross</div><div class="val">${(() => { const sorted = rows.slice().sort((a,b)=>a.gross-b.gross); const low = sorted[0].gross; return sorted.filter(r=>r.gross===low).map(r=>r.player.split(' ')[1]).join(', ') + ' (' + low + ')'; })()}</div></div>
+      <div><div class="label">Low Net</div><div class="val">${(() => { const sorted = rows.slice().sort((a,b)=>a.net-b.net); const low = sorted[0].net; return sorted.filter(r=>r.net===low).map(r=>r.player.split(' ')[1]).join(', ') + ' (' + low + ')'; })()}</div></div>
       <div><div class="label">Team Win</div><div class="val">${(() => { const winner = teamsSorted[0]; const names = rows.filter(r=>r.team===winner[0]).map(r=>r.player.split(' ')[1]).join(' & '); return `${names} (${winner[1] >= 0 ? '+' : ''}${winner[1]})`; })()}</div></div>
     </div>
     <div class="table-wrap">
@@ -1308,21 +1341,20 @@ function renderWeeklyResults(week, archiveData) {
 // ══════════════════════════════════════════════
 
 function renderScorecardSelector(weeklyScorecard) {
-  const weeks = Object.keys(weeklyScorecard).map(Number).sort((a,b)=>b-a); // newest first
+  const weeks = Object.keys(weeklyScorecard).map(Number).sort((a,b)=>b-a);
   const sel = document.getElementById('scorecard-week-selector');
   sel.innerHTML = '';
-  weeks.forEach((w, i) => {
-    const btn = document.createElement('button');
-    btn.className = 'week-btn' + (i === 0 ? ' active' : '');
-    btn.textContent = `Week ${w}`;
-    btn.onclick = () => {
-      sel.querySelectorAll('.week-btn').forEach(b => b.classList.remove('active'));
-      btn.classList.add('active');
-      renderScorecard(w, weeklyScorecard);
-    };
-    sel.appendChild(btn);
+  const select = document.createElement('select');
+  select.className = 'week-select';
+  weeks.forEach(w => {
+    const opt = document.createElement('option');
+    opt.value = w;
+    opt.textContent = `Week ${w}`;
+    select.appendChild(opt);
   });
-  if (weeks.length) renderScorecard(weeks[0], weeklyScorecard); // default to latest
+  select.onchange = () => renderScorecard(parseInt(select.value), weeklyScorecard);
+  sel.appendChild(select);
+  if (weeks.length) renderScorecard(weeks[0], weeklyScorecard);
 }
 
 function renderScorecard(week, weeklyScorecard) {
