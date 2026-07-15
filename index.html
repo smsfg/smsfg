@@ -407,6 +407,94 @@
   .skin-close  { background: rgba(45,90,52,0.15); font-weight: 500; }
   .skin-tied   { background: rgba(201,168,76,0.08); }
 
+  /* ── MODAL ── */
+  .modal-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.5);
+    z-index: 1000;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem;
+  }
+  .modal-overlay.open { display: flex; }
+
+  .modal {
+    background: var(--cream);
+    border: 1px solid var(--gold);
+    border-radius: 10px;
+    width: 100%;
+    max-width: 480px;
+    box-shadow: 0 8px 40px rgba(0,0,0,0.3);
+    overflow: hidden;
+  }
+
+  .modal-header {
+    background: var(--green-dark);
+    padding: 1rem 1.25rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .modal-header h3 {
+    font-family: 'Playfair Display', serif;
+    color: var(--gold-light);
+    font-size: 1.1rem;
+    font-weight: 700;
+  }
+
+  .modal-header .modal-close {
+    background: none;
+    border: none;
+    color: var(--gold-light);
+    font-size: 1.4rem;
+    cursor: pointer;
+    line-height: 1;
+    padding: 0 0.25rem;
+    opacity: 0.75;
+  }
+  .modal-header .modal-close:hover { opacity: 1; }
+
+  .modal-body { padding: 1.25rem; }
+
+  .modal-body table { width: 100%; border-collapse: collapse; font-size: 0.88rem; }
+  .modal-body thead th {
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--text-muted);
+    padding: 0.4rem 0.6rem;
+    text-align: left;
+    border-bottom: 1px solid var(--border);
+  }
+  .modal-body thead th.num { text-align: right; }
+  .modal-body tbody td { padding: 0.5rem 0.6rem; border-bottom: 1px solid rgba(201,168,76,0.1); }
+  .modal-body tbody td.num { text-align: right; font-variant-numeric: tabular-nums; }
+  .modal-body tbody tr:last-child td { border-bottom: none; }
+
+  .modal-row-dropped td { color: var(--text-muted); }
+  .modal-row-dropped td:first-child::after { content: ' (dropped)'; font-size: 0.75rem; font-style: italic; }
+  .modal-row-notcounted td { color: var(--text-muted); opacity: 0.6; }
+  .modal-row-notcounted td:first-child::after { content: ' (not counted)'; font-size: 0.75rem; font-style: italic; }
+  .modal-row-counted td { font-weight: 500; }
+
+  .modal-total {
+    margin-top: 1rem;
+    padding: 0.75rem 1rem;
+    background: var(--green-dark);
+    border-radius: 6px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .modal-total span:first-child { color: var(--gold-pale); font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.08em; }
+  .modal-total span:last-child { color: var(--gold-light); font-family: 'Playfair Display', serif; font-size: 1.3rem; font-weight: 700; }
+
+  .clickable-player { cursor: pointer; text-decoration: underline; text-decoration-style: dotted; text-underline-offset: 3px; }
+  .clickable-player:hover { color: var(--green-mid); }
+
   /* ── FOOTER ── */
   footer {
     text-align: center;
@@ -1232,6 +1320,7 @@ function renderStandings(sortCol = 0, archiveData) {
 
 function buildStandingsRow(p) {
   const isRegular = p.type === 'Regular';
+  const isClickable = isRegular && p.status !== 'ns';
   const tr = document.createElement('tr');
   if (!isRegular) tr.classList.add('sub-row');
 
@@ -1242,8 +1331,12 @@ function buildStandingsRow(p) {
   else ptsCell = `<td class="num" style="font-weight:600;">${p.seasonPts}</td>`;
 
   const cashClass = p.netCash >= 0 ? 'badge-pos' : 'badge-neg';
+  const nameCell = isClickable
+    ? `<td style="font-weight:500;" class="clickable-player" onclick="openScoreModal('${p.player.replace(/'/g, "\\'")}')">${p.player}</td>`
+    : `<td style="font-weight:500;">${p.player}</td>`;
+
   tr.innerHTML = `
-    <td style="font-weight:500;">${p.player}</td>
+    ${nameCell}
     ${ptsCell}
     <td class="num">${p.rounds}</td>
     <td class="num">${p.avgGross}</td>
@@ -1493,6 +1586,59 @@ function sortTable(tableId, col, btn) {
 }
 
 // ══════════════════════════════════════════════
+// SCORE MODAL
+// ══════════════════════════════════════════════
+
+function openScoreModal(playerName) {
+  const rounds = globalArchiveData
+    .filter(r => r.player === playerName && r.type === 'Regular')
+    .sort((a,b) => b.stableford - a.stableford); // best first
+
+  if (!rounds.length) return;
+
+  document.getElementById('modal-title').textContent = playerName;
+
+  const tbody = document.getElementById('modal-body');
+  tbody.innerHTML = '';
+
+  rounds.forEach((r, i) => {
+    const tr = document.createElement('tr');
+    let rowClass = '';
+    if (i === 0) rowClass = 'modal-row-dropped';
+    else if (i >= 1 && i <= 5) rowClass = 'modal-row-counted';
+    else rowClass = 'modal-row-notcounted';
+
+    tr.className = rowClass;
+    tr.innerHTML = `
+      <td>Week ${r.week}</td>
+      <td>${r.course}</td>
+      <td class="num" style="font-weight:${i>=1&&i<=5?'600':'400'}">${r.stableford > 0 ? '+' : ''}${r.stableford}</td>
+    `;
+    tbody.appendChild(tr);
+  });
+
+  // Calculate season points (sum of rounds 2-6, index 1-5)
+  const counted = rounds.slice(1, 6);
+  const seasonPts = counted.reduce((a,b) => a + b.stableford, 0);
+  const isComplete = rounds.length >= 6;
+
+  const totalDiv = document.getElementById('modal-total');
+  totalDiv.innerHTML = `
+    <span>Season Points${!isComplete ? ' (incomplete)' : ''}</span>
+    <span>${seasonPts > 0 ? '+' : ''}${seasonPts}</span>
+  `;
+
+  document.getElementById('score-modal').classList.add('open');
+}
+
+function closeModal() {
+  document.getElementById('score-modal').classList.remove('open');
+}
+
+// Close on Escape key
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
+
+// ══════════════════════════════════════════════
 // NAVIGATION
 // ══════════════════════════════════════════════
 
@@ -1569,5 +1715,27 @@ document.querySelector('.notes-card p').innerHTML = config.notes;
 
 init();
 </script>
+<div class="modal-overlay" id="score-modal" onclick="if(event.target===this)closeModal()">
+  <div class="modal">
+    <div class="modal-header">
+      <h3 id="modal-title">Season Scores</h3>
+      <button class="modal-close" onclick="closeModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <table>
+        <thead>
+          <tr>
+            <th>Week</th>
+            <th>Course</th>
+            <th class="num">Stableford</th>
+          </tr>
+        </thead>
+        <tbody id="modal-body"></tbody>
+      </table>
+      <div class="modal-total" id="modal-total"></div>
+    </div>
+  </div>
+</div>
+
 </body>
 </html>
