@@ -695,8 +695,7 @@
             <th class="num">Net Cash Won</th>
             <th class="num">Rounds</th>
             <th class="num">Skins</th>
-            <th class="num">CTP Front</th>
-            <th class="num">CTP Back</th>
+            <th class="num">CTP</th>
           </tr>
         </thead>
         <tbody id="money-body"></tbody>
@@ -1548,8 +1547,7 @@ function renderMoney(archiveData) {
       <td class="num"><span class="${cashClass}" style="font-weight:600;">${formatCash(p.netCash)}</span></td>
       <td class="num">${p.rounds}</td>
       <td class="num">${p.skins}</td>
-      <td class="num">${p.ctpF}</td>
-      <td class="num">${p.ctpB}</td>
+      <td class="num">${p.ctpF + p.ctpB}</td>
     `;
     tbody.appendChild(tr);
   });
@@ -1570,8 +1568,8 @@ function sortTable(tableId, col, btn) {
     const rows = Array.from(tbody.querySelectorAll('tr'));
     rows.sort((a, b) => {
       if (col === 'ctp') {
-        const aVal = (parseInt(a.cells[6]?.textContent.trim()) || 0) + (parseInt(a.cells[7]?.textContent.trim()) || 0);
-        const bVal = (parseInt(b.cells[6]?.textContent.trim()) || 0) + (parseInt(b.cells[7]?.textContent.trim()) || 0);
+        const aVal = parseInt(a.cells[6]?.textContent.trim()) || 0;
+        const bVal = parseInt(b.cells[6]?.textContent.trim()) || 0;
         return bVal - aVal;
       }
       const aRaw = a.cells[col]?.textContent.trim() || '';
