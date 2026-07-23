@@ -695,7 +695,8 @@
             <th class="num">Net Cash Won</th>
             <th class="num">Rounds</th>
             <th class="num">Skins</th>
-            <th class="num">CTP</th>
+            <th class="num">CTP Front</th>
+            <th class="num">CTP Back</th>
           </tr>
         </thead>
         <tbody id="money-body"></tbody>
@@ -772,7 +773,7 @@ const config = {
     ctpHoles: [4, 11],
     foursomes: [
       { teeTime: '11:00 AM', hole: 1, players: ['Graef', 'Riley', 'Axelsen', 'Seubert'] },
-      { teeTime: '11:09 AM', hole: 1, players: ['Wiley', 'Boutin', 'Beliveau', 'Keenan'] },
+      { teeTime: '11:09 AM', hole: 1, players: ['Wiley', 'Tworog', 'Beliveau', 'Keenan'] },
       { teeTime: '11:18 AM', hole: 1, players: ['Jerome', 'Fitzgerald', 'Drew', 'Breton'] },
       { teeTime: '11:27 PM', hole: 1, players: ['Scudder', 'Shaw', 'McGarry', 'Heenan'] },
       { teeTime: '11:36 PM', hole: 1, players: ['Gikas', 'King', 'Skeffington', 'Gagnon'] },
@@ -1547,7 +1548,8 @@ function renderMoney(archiveData) {
       <td class="num"><span class="${cashClass}" style="font-weight:600;">${formatCash(p.netCash)}</span></td>
       <td class="num">${p.rounds}</td>
       <td class="num">${p.skins}</td>
-      <td class="num">${p.ctpF + p.ctpB}</td>
+      <td class="num">${p.ctpF}</td>
+      <td class="num">${p.ctpB}</td>
     `;
     tbody.appendChild(tr);
   });
@@ -1568,8 +1570,8 @@ function sortTable(tableId, col, btn) {
     const rows = Array.from(tbody.querySelectorAll('tr'));
     rows.sort((a, b) => {
       if (col === 'ctp') {
-        const aVal = parseInt(a.cells[6]?.textContent.trim()) || 0;
-        const bVal = parseInt(b.cells[6]?.textContent.trim()) || 0;
+        const aVal = (parseInt(a.cells[6]?.textContent.trim()) || 0) + (parseInt(a.cells[7]?.textContent.trim()) || 0);
+        const bVal = (parseInt(b.cells[6]?.textContent.trim()) || 0) + (parseInt(b.cells[7]?.textContent.trim()) || 0);
         return bVal - aVal;
       }
       const aRaw = a.cells[col]?.textContent.trim() || '';
