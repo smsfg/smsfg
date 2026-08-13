@@ -770,7 +770,7 @@ const config = {
     date: '8/18/2026',
     course: 'Bethel Inn Golf Course',
     tees: 'Gold',
-    ctpHoles: [6, 16],
+    ctpHoles: [7, 15],
     foursomes: [
       { teeTime: '11:30 AM', hole: 1, players: ['Scudder', 'Seubert', 'Levesque', 'Marshall'] },
       { teeTime: '11:39 AM', hole: 1, players: ['Graef', 'Fitzgerald', 'King', 'Beliveau'] },
@@ -1228,10 +1228,9 @@ async function init() {
     const regulars = [...new Set(archiveData.filter(r => r.type === 'Regular').map(r => r.player))].length;
     const standings = computeStandings(archiveData).filter(p => p.seasonPts !== null).sort((a,b) => b.seasonPts - a.seasonPts);
     const leader = standings[0];
-    const leaders = leader ? standings.filter(p => p.seasonPts === leader.seasonPts) : [];
     document.getElementById('stat-weeks').textContent = weeksPlayed;
     document.getElementById('stat-regulars').textContent = regulars;
-    document.getElementById('stat-leader').textContent = leaders.length ? leaders.map(p => p.player.split(' ')[1]).join(', ') : '—';
+    document.getElementById('stat-leader').textContent = leader ? leader.player.split(' ')[1] : '—';
     document.getElementById('stat-points').textContent = leader ? `${leader.seasonPts} pts` : '—';
 
   } catch(err) {
