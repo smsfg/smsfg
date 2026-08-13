@@ -1228,9 +1228,10 @@ async function init() {
     const regulars = [...new Set(archiveData.filter(r => r.type === 'Regular').map(r => r.player))].length;
     const standings = computeStandings(archiveData).filter(p => p.seasonPts !== null).sort((a,b) => b.seasonPts - a.seasonPts);
     const leader = standings[0];
+    const leaders = leader ? standings.filter(p => p.seasonPts === leader.seasonPts) : [];
     document.getElementById('stat-weeks').textContent = weeksPlayed;
     document.getElementById('stat-regulars').textContent = regulars;
-    document.getElementById('stat-leader').textContent = leader ? leader.player.split(' ')[1] : '—';
+    document.getElementById('stat-leader').textContent = leaders.length ? leaders.map(p => p.player.split(' ')[1]).join(', ') : '—';
     document.getElementById('stat-points').textContent = leader ? `${leader.seasonPts} pts` : '—';
 
   } catch(err) {
