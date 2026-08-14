@@ -765,19 +765,8 @@ const config = {
 			<p></p>
 			<p>Contact Mike with any scoring questions or website issues.</p>`,
   nextWeek: {
-    available: true,
-    weekNum: 10,
-    date: '8/18/2026',
-    course: 'Bethel Inn Golf Course',
-    tees: 'Gold',
-    ctpHoles: [7, 15],
-    foursomes: [
-      { teeTime: '11:30 AM', hole: 1, players: ['Scudder', 'Seubert', 'Levesque', 'Marshall'] },
-      { teeTime: '11:39 AM', hole: 1, players: ['Graef', 'Fitzgerald', 'King', 'Beliveau'] },
-      { teeTime: '11:48 AM', hole: 1, players: ['Wiley', 'ODonnell', 'Axelsen', 'Drew'] },
-      { teeTime: '11:57 AM', hole: 1, players: ['Keenan', 'Tworog', 'Boutin', 'Fournier'] },
-      { teeTime: '12:06 PM', hole: 1, players: ['Riley', 'Skeffington', 'Heenan'] },
-    ]
+    available: true,   // ← set to false to show "pairings coming soon"
+    weekNum: 10        // ← update each week
   }
 };
 
@@ -1140,6 +1129,53 @@ function renderSchedule(rows) {
 }
 
 // ══════════════════════════════════════════════
+// NEXT ROUND SHEET PARSER
+// ══════════════════════════════════════════════
+
+function parseNextRoundSheet(text) {
+  // Parse tab or comma separated CSV
+  const lines = text.trim().split('\n').map(line => {
+    const vals = [];
+    let cur = '', inQ = false;
+    for (const ch of line) {
+      if (ch === '"') inQ = !inQ;
+      else if ((ch === ',' || ch === '\t') && !inQ) { vals.push(cur.trim()); cur = ''; }
+      else cur += ch;
+    }
+    vals.push(cur.trim());
+    return vals.map(v => v.replace(/"/g,'').trim());
+  });
+
+  const result = { date: '', course: '', tees: '', ctpHoles: [], foursomes: [] };
+
+  // Rows 1-6: key/value pairs (key in col 0, value in col 1)
+  for (let i = 0; i < Math.min(6, lines.length); i++) {
+    const key = (lines[i][0] || '').toLowerCase().replace(/\s/g,'');
+    const val = lines[i][1] || '';
+    if (key.includes('date'))   result.date   = val;
+    if (key.includes('course')) result.course = val;
+    if (key.includes('tees'))   result.tees   = val;
+    if (key.includes('ctpfront') || key.includes('front')) result.ctpHoles[0] = parseInt(val) || 0;
+    if (key.includes('ctpback')  || key.includes('back'))  result.ctpHoles[1] = parseInt(val) || 0;
+  }
+
+  // Remaining rows: foursome data (skip blank rows)
+  // Format: group#, teeTime, player1, player2, player3, player4
+  for (let i = 6; i < lines.length; i++) {
+    const row = lines[i];
+    const groupNum = parseInt(row[0]);
+    if (!groupNum) continue; // skip blank rows
+    const teeTime = row[1] || '';
+    const players = row.slice(2).filter(p => p.length > 0);
+    if (players.length > 0) {
+      result.foursomes.push({ teeTime, hole: 1, players });
+    }
+  }
+
+  return result;
+}
+
+// ══════════════════════════════════════════════
 // INIT — fetch live data then render
 // ══════════════════════════════════════════════
 
@@ -1215,23 +1251,30 @@ async function init() {
     const scheduleRows = parseCSVGeneric(scheduleText);
     renderSchedule(scheduleRows);
 
+    // Fetch Next Round sheet
+    let nextRoundData = { date: '', course: '', tees: '', ctpHoles: [], foursomes: [] };
+    try {
+      const nrRes = await fetch(csvUrl('1372449103'));
+      const nrText = await nrRes.text();
+      nextRoundData = parseNextRoundSheet(nrText);
+    } catch(e) { console.warn('Could not load next round sheet', e); }
+
     // Render everything
     renderStandings(0, archiveData);
     renderWeeklySelector(archiveData);
     renderScorecardSelector(weeklyScorecard);
     renderSkinsSelector(weeklySkins);
     renderMoney(archiveData);
-    renderNextWeek();
+    renderNextWeek(nextRoundData);
 
     // Update stat pills
     const weeksPlayed = [...new Set(archiveData.map(r => r.week))].length;
     const regulars = [...new Set(archiveData.filter(r => r.type === 'Regular').map(r => r.player))].length;
     const standings = computeStandings(archiveData).filter(p => p.seasonPts !== null).sort((a,b) => b.seasonPts - a.seasonPts);
     const leader = standings[0];
-    const leaders = leader ? standings.filter(p => p.seasonPts === leader.seasonPts) : [];
     document.getElementById('stat-weeks').textContent = weeksPlayed;
     document.getElementById('stat-regulars').textContent = regulars;
-    document.getElementById('stat-leader').textContent = leaders.length ? leaders.map(p => p.player.split(' ')[1]).join(', ') : '—';
+    document.getElementById('stat-leader').textContent = leader ? leader.player.split(' ')[1] : '—';
     document.getElementById('stat-points').textContent = leader ? `${leader.seasonPts} pts` : '—';
 
   } catch(err) {
@@ -1658,25 +1701,32 @@ function showPage(page, btn) {
 // NEXT WEEK
 // ══════════════════════════════════════════════
 
-function renderNextWeek() {
+function renderNextWeek(sheetData) {
   const nw = config.nextWeek;
+  // Merge sheet data with config (config provides available + weekNum, sheet provides everything else)
+  const data = sheetData || {};
+  const date     = data.date     || '';
+  const course   = data.course   || '';
+  const tees     = data.tees     || '';
+  const ctpHoles = data.ctpHoles || [];
+  const foursomes = data.foursomes || [];
+
   const div = document.getElementById('nextweek-content');
   const sub = document.getElementById('nextweek-subtitle');
 
-  const hasInfo = nw.date || nw.course || nw.tees || (nw.ctpHoles && nw.ctpHoles.length);
+  const hasInfo = date || course || tees || ctpHoles.length;
 
   sub.textContent = nw.available
-    ? `Week ${nw.weekNum} · ${nw.date} · ${nw.course}`
-    : hasInfo ? `Week ${nw.weekNum} · ${nw.date}` : 'Coming soon';
+    ? `Week ${nw.weekNum} · ${date} · ${course}`
+    : hasInfo ? `Week ${nw.weekNum} · ${date}` : 'Coming soon';
 
-  // Build the meta info block if any info is available
   const metaBlock = hasInfo ? `
     <div class="scorecard-meta" style="margin-bottom:1.5rem;">
-      ${nw.date    ? `<div><div class="label">Date</div><div class="val">${nw.date}</div></div>` : ''}
-      ${nw.course  ? `<div><div class="label">Course</div><div class="val">${nw.course}</div></div>` : ''}
-      ${nw.tees    ? `<div><div class="label">Tees</div><div class="val">${nw.tees}</div></div>` : ''}
-      ${nw.ctpHoles && nw.ctpHoles.length ? `<div><div class="label">CTP Holes</div><div class="val">${nw.ctpHoles.join(' & ')}</div></div>` : ''}
-      ${nw.available ? `<div><div class="label">Groups</div><div class="val">${nw.foursomes.length}</div></div>` : ''}
+      ${date    ? `<div><div class="label">Date</div><div class="val">${date}</div></div>` : ''}
+      ${course  ? `<div><div class="label">Course</div><div class="val">${course}</div></div>` : ''}
+      ${tees    ? `<div><div class="label">Tees</div><div class="val">${tees}</div></div>` : ''}
+      ${ctpHoles.length ? `<div><div class="label">CTP Holes</div><div class="val">${ctpHoles.join(' & ')}</div></div>` : ''}
+      ${nw.available ? `<div><div class="label">Groups</div><div class="val">${foursomes.length}</div></div>` : ''}
     </div>` : '';
 
   if (!nw.available) {
@@ -1693,7 +1743,7 @@ function renderNextWeek() {
   div.innerHTML = `
     ${metaBlock}
     <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(260px,1fr)); gap:1rem;">
-      ${nw.foursomes.map((g, i) => `
+      ${foursomes.map((g, i) => `
         <div class="table-wrap" style="padding:1rem 1.25rem;">
           <div style="display:flex; justify-content:space-between; align-items:baseline; margin-bottom:0.75rem; padding-bottom:0.5rem; border-bottom:1px solid var(--border);">
             <span style="font-family:'Playfair Display',serif; font-size:1rem; font-weight:700; color:var(--green-dark);">Group ${i+1}</span>
