@@ -1133,44 +1133,31 @@ function renderSchedule(rows) {
 // ══════════════════════════════════════════════
 
 function parseNextRoundSheet(text) {
-  // Parse tab or comma separated CSV
-  const lines = text.trim().split('\n').map(line => {
-    const vals = [];
-    let cur = '', inQ = false;
-    for (const ch of line) {
-      if (ch === '"') inQ = !inQ;
-      else if ((ch === ',' || ch === '\t') && !inQ) { vals.push(cur.trim()); cur = ''; }
-      else cur += ch;
-    }
-    vals.push(cur.trim());
-    return vals.map(v => v.replace(/"/g,'').trim());
-  });
+  const rows = parseCSVGeneric(text);
+  if (!rows || !rows.length) return { date: '', course: '', tees: '', ctpHoles: [], foursomes: [] };
 
-  const result = { date: '', course: '', tees: '', ctpHoles: [], foursomes: [] };
+  // All info is in every row — grab from first row
+  const first = rows[0];
+  const result = {
+    date:     first['Date']    || '',
+    course:   first['Course']  || '',
+    tees:     first['Tees']    || '',
+    ctpHoles: [parseInt(first['ctp_front']) || 0, parseInt(first['ctp_back']) || 0],
+    foursomes: []
+  };
 
-  // Rows 1-6: key/value pairs (key in col 0, value in col 1)
-  for (let i = 0; i < Math.min(6, lines.length); i++) {
-    const key = (lines[i][0] || '').toLowerCase().replace(/\s/g,'');
-    const val = lines[i][1] || '';
-    if (key.includes('date'))   result.date   = val;
-    if (key.includes('course')) result.course = val;
-    if (key.includes('tees'))   result.tees   = val;
-    if (key.includes('ctpfront') || key.includes('front')) result.ctpHoles[0] = parseInt(val) || 0;
-    if (key.includes('ctpback')  || key.includes('back'))  result.ctpHoles[1] = parseInt(val) || 0;
-  }
-
-  // Remaining rows: foursome data (skip blank rows)
-  // Format: group#, teeTime, player1, player2, player3, player4
-  for (let i = 6; i < lines.length; i++) {
-    const row = lines[i];
-    const groupNum = parseInt(row[0]);
-    if (!groupNum) continue; // skip blank rows
-    const teeTime = row[1] || '';
-    const players = row.slice(2).filter(p => p.length > 0);
+  // Each row is a group
+  rows.forEach(row => {
+    const group = parseInt(row['Group']);
+    const time  = row['Time'] || '';
+    if (!group) return;
+    const players = ['Player1','Player2','Player3','Player4']
+      .map(k => row[k] || '')
+      .filter(p => p.length > 0);
     if (players.length > 0) {
-      result.foursomes.push({ teeTime, hole: 1, players });
+      result.foursomes.push({ teeTime: time, hole: 1, players });
     }
-  }
+  });
 
   return result;
 }
